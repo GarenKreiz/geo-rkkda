@@ -68,8 +68,8 @@ awk '
     gsub(" ", "", name)
     str = $0
     sub(".*ZonePoint[(]", "", str)
-    sub(", 0.*", "", str)
-    sub(",", "", str)
+    sub(", [0-9][0-9]*[)]", "", str)
+    gsub(",", "", str)
     print str, "OP-" name, "dot,blue"
     next
 }
@@ -79,9 +79,8 @@ awk '
     gsub(" ", "", name)
     str = $0
     sub(".*ZonePoint[(]", "", str)
-    sub(", 0.*", "", str)
-    sub(", 360.*", "", str)
-    sub(",", "", str)
+    sub(", [0-9][0-9]*[)]", "", str)
+    gsub(",", "", str)
     if (str == "-81 -81") next
     print str, name, "dot,yellow"
     next
@@ -94,8 +93,8 @@ awk '
 /^[ 	]*ZonePoint\(/ {
     str = $0
     sub(".*ZonePoint[(]", "", str)
-    sub(", 0.*", "", str)
-    sub(",", "", str)
+    sub(", [0-9][0-9]*[)]", "", str)
+    gsub(",", "", str)
     if (name == "")
 	print str, "start", "dot,green"
     else

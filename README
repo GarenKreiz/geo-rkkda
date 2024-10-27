@@ -167,6 +167,7 @@ Miscellaneous
 	geo-compare-images Compare two images
 	geo-char-at	Pick the char at position "n"
 	geo-fax		Decode a FAX using 0s and 1s
+	geo-jigsaw-puzzle Solve flash-gear.com Jigsaw Puzzles
 	geo-lewis-and-clark Encode/decode Lewis and Clark cipher
 	geo-math-functions Do various math functions
 	geo-morse	Morse decoder

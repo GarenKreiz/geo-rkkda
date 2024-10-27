@@ -10,6 +10,8 @@ NAME
 SYNOPSIS
 	`basename $PROGNAME` [options] latitude longitude
 
+	`basename $PROGNAME` [options]
+
 DESCRIPTION
 	Convert lat/lon from one format to another.
 	Lat/Lon may be in DegDec, MinDec, or DMS formats.
@@ -25,6 +27,8 @@ DESCRIPTION
 	    W93.29.478	    MinDec (decimal minutes)
 	
 	    "-93 45 30"	    DMS (degrees, minutes, seconds)
+
+	The second form reads from stdin.
 
 OPTIONS
 	-a	Antipod (opposite side)
@@ -49,6 +53,11 @@ EXAMPLE
 	    N38.538816 E121.771417
 	    N38 32' 19.737600" E121 46' 17.101200"
 	    N38.32.329 E121.46.285
+
+	Convert from stdin:
+
+	    $ echo "n45 w93.5" | geo-coords -a -m
+	    S45.00.000 E86.30.000
 
 SEE ALSO
 	ll2maidenhead, ll2osg, ll2rd, ll2usng, ll2utm,
@@ -109,6 +118,21 @@ case "$#" in
 	LAT=`latlon $1`
 	LON=`latlon $2`
 	;;
+0)
+	if [ -t 0 ]; then
+	    echo "Type the geo-coords command line(s): "
+	fi
+	while read a; do
+	    opts=
+	    if [ $ANTI = 1 ]; then opts="$opts -a"; fi
+	    if [ $DEGDEC = 1 ]; then opts="$opts -d"; fi
+	    if [ $DEGMIN = 1 ]; then opts="$opts -m"; fi
+	    if [ $DOLAT = 1 ]; then opts="$opts -l"; fi
+	    if [ $DOLON = 1 ]; then opts="$opts -L"; fi
+	    geo-coords $opts $a
+	done
+	exit
+	;;
 *)
 	usage
 	;;
@@ -120,7 +144,10 @@ if [ $ANTI = 1 ]; then
 fi
 
 if [ $DEGMIN = 0 ]; then
-    if [ $DOLAT = 1 ]; then
+    if [ $DOLAT = 1 -a $DOLON = 1 ]; then
+	echo "$LAT $LON"
+	exit
+    elif [ $DOLAT = 1 ]; then
 	echo "$LAT"
 	exit
     elif [ $DOLON = 1 ]; then
@@ -173,7 +200,10 @@ if [ $DEGMIN = 0 ]; then
     echo "$(degdec2NSdegdec $LAT N S) $(degdec2NSdegdec $LON E W)"
     echo "$(degdec2NSdms $LAT N S) $(degdec2NSdms $LON E W)"
 else
-    if [ $DOLAT = 1 ]; then
+    if [ $DOLAT = 1 -a $DOLON = 1 ]; then
+	echo "$(degdec2NSmindec $LAT N S)" "$(degdec2NSmindec $LON E W)"
+	exit
+    elif [ $DOLAT = 1 ]; then
 	echo "$(degdec2NSmindec $LAT N S)"
 	exit
     elif [ $DOLON = 1 ]; then

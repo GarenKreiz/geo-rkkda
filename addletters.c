@@ -447,7 +447,14 @@ main(int argc, char *argv[])
 		printf("%c", toupper((unsigned char) ValsRev[val]));
 	    }
 	    else if (ascii)
-		printf("%c", (int) strtol(argv[i], NULL, base) );
+	    {
+		val = (int) strtol(argv[i], NULL, base);
+		if (val == 176)
+		    // Degrees...
+		    printf("%c%c", 0xC2, 0xB0);
+		else
+		    printf("%c", val);
+	    }
 	    else if (Kay)
 	    {
 		val = (char *) memchr(ValsKayCipher, val, 26) - ValsKayCipher;

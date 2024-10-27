@@ -12,7 +12,7 @@
 #
 #	Use at your own risk.  Not suitable for any purpose.  Not legal tender.
 #
-#	$Id: geo-dist.sh,v 1.39 2016/04/08 13:29:55 rick Exp $
+#	$Id: geo-dist.sh,v 1.40 2019/01/29 16:28:33 rick Exp $
 #
 
 PROGNAME="$0"
@@ -245,13 +245,13 @@ calc_dist_meters() {
 	if (VIN)
 	{
 	    d = distVincenty(LATmin, LONmin, LATmax, LONmax)
-	    printf "%d %f\n", d, bearing[1]
+	    printf "%.1f %f\n", d, bearing[1]
 	}
 	else
 	{
 	    d = dist(LATmin, LONmin, LATmax, LONmax)
 	    b = bear(LATmin, LONmin, LATmax, LONmax)
-	    printf "%d %f\n", d, b
+	    printf "%.1f %f\n", d, b
 	}
 	# printf "%d\n", d
 	# print bearing[1], bearing[2] > "/dev/stderr"
@@ -528,8 +528,9 @@ while ((i < Npts)); do
 	rc=`calc_dist_meters $LAT1 $LON1 $LAT2 $LON2`
 	d=`echo "$rc" | awk '{print $1}'`
 	b=`echo "$rc" | awk '{print $2}'`
+	di=`echo $d | sed 's/\..*//'`
 	# b=`calc_bearing $LAT1 $LON1 $LAT2 $LON2`
-	((meters+=d))
+	((meters+=di))
 	if [ $INCR = 1 ]; then
 	    miles=$(dounits "$meters meters" miles)
 	    km=$(dounits "$meters meters" km)

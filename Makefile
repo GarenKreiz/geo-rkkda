@@ -141,6 +141,7 @@ SHELLS=	geo-nearest geo-code geo-count geo-usernum geo-waypoint \
 	stickman2text \
 	geo-math-functions \
 	geo-addsub \
+	geo-jigsaw-puzzle \
 	$(NULL)
 
 	# Private stock
@@ -262,6 +263,7 @@ FILES= \
 	geo-loran-c \
 	gpx-unfound.sh \
 	geo-phone2word.sh \
+	depuzzlefy.pl \
 	english.dic \
 	navaho.dic \
 	french \
@@ -322,6 +324,7 @@ FILES= \
 	stickman2text \
 	geo-math-functions \
 	geo-addsub \
+	geo-jigsaw-puzzle \
 	$(NULL)
 
 #
@@ -542,6 +545,7 @@ install: all
 	install -m 644 english.dic $(PREFIX)/lib/geo
 	install -m 644 navaho.dic $(PREFIX)/lib/geo
 	install -m 644 $(CROSSWORD_LANGS) $(PREFIX)/lib/geo
+	install -m 755 depuzzlefy.pl $(PREFIX)/lib/geo
 
 uninstall:
 	if [ -d $(PREFIX)/bin/ ]; then \
@@ -552,7 +556,7 @@ uninstall:
 	    cd $$HOME/public_html && rm -f geodetics.html greatcircle.html; \
 	fi
 	if [ -d $(PREFIX)/lib/geo ]; then \
-	    cd $(PREFIX)/lib/geo && rm -f english.dic navaho.dic $(CROSSWORD_LANGS); \
+	    cd $(PREFIX)/lib/geo && rm -f english.dic navaho.dic $(CROSSWORD_LANGS) depuzzlefy.pl; \
 	fi
 
 clean:
@@ -672,14 +676,16 @@ webmn:
 #	Regression tests
 #
 test:
+	geo-nearest -n1 -otabsep N44.57.196 W93.29.279 | grep GC1FFA8
 	geo-gpx -ogpx GC3T7TK | grep "<wpt"
-	geo-gid GC4TAX4
+	geo-gid GC82HWX
 	geo-code "952-476-8329"
 	geo-code "" "Mankato, MN"
-	geo-code -t house "47071 Bayside Parkway" 94538 
-	geo-code -n "Bob's House" -t house "47071 Bayside Parkway" 94538 
+	geo-code "2600 LAS MERCEDES LN" 92879
+	geo-code -t house "2600 LAS MERCEDES LN" 92879
+	geo-code -n "Bob's House" -t house "2600 LAS MERCEDES LN" 92879
 	geo-code -ogpsdrive.sql -n "Any House USA" -t house \
-	    "47071 Bayside Parkway" 94538 
+	    "2600 LAS MERCEDES LN" 92879
 	geo-nearest -n 40
 	geo-newest -n 40
 

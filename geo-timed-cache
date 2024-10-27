@@ -114,7 +114,7 @@ do_one() {
     verbose=$1
     case "$BROWSER" in
     curl)
-	curl -s $URL |
+	curl -L -s $URL |
 	    tee /tmp/geo-timed-cache-xxx |
 	    sed -e '/The last guess was made/d' > .p
 	;;

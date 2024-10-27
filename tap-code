@@ -46,6 +46,15 @@ DESCRIPTION
 	4 	P 	Q 	R 	S 	T
 	5 	U/V 	W 	X 	Y 	Z
 
+    Or with -z:
+
+	row/col	1 	2 	3 	4 	5
+	1 	A 	B 	C 	D 	E
+	2 	F 	G 	H 	I 	J
+	3 	K 	L 	M 	N 	O
+	4 	P 	Q 	R 	S 	T
+	5 	U 	V 	W 	X 	Y
+
     Or with -6:
 
 	row/col	1 	2 	3 	4 	5	6
@@ -68,6 +77,7 @@ OPTIONS
     -c		Combine c/k (default)
     -i		Combine i/j instead of c/k
     -u		Combine u/v instead of c/k
+    -z		Combine y/z instead of c/k
     -6		Matrix is 6x6, A..Z and 0..9 can be done.
     -D lvl	Debug level
 
@@ -123,7 +133,7 @@ NUM=0
 IJ=c
 REV=0
 SIZE=5
-while getopts "cinru6D:h?" opt
+while getopts "cinruz6D:h?" opt
 do
 	case $opt in
 	c)	IJ=c;;
@@ -131,6 +141,7 @@ do
 	n)	NUM=1;;
 	r)	REV=1;;
 	u)	IJ=u;;
+	z)	IJ=z;;
 	6)	SIZE=6;;
 	D)	DEBUG="$OPTARG";;
 	h|\?)	usage;;
@@ -170,6 +181,8 @@ doit() {
 	    ps="abcdefghiklmnopqrstuvwxyz"
 	else if (IJ == "u")
 	    ps="abcdefghijklmnopqrstuwxyz"
+	else if (IJ == "z")
+	    ps="abcdefghijklmnopqrstuvwxy"
 	else
 	{
 	    printf "tap-code: no decode for %s\n", IJ

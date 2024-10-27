@@ -5,7 +5,7 @@
 #
 #	Use at your own risk.  Not suitable for any purpose.  Not legal tender.
 #
-#	$Id: geo-map.sh,v 1.383 2018/10/23 20:50:03 rick Exp $
+#	$Id: geo-map.sh,v 1.394 2019/01/31 13:19:51 rick Exp $
 #
 
 PROGNAME="$0"
@@ -59,11 +59,12 @@ DESCRIPTION
 	dot,<color>,<diameter>
 	    <color> is any color allowed by convert(1)
 	    <size> is the length in pixels of the crosses or the diameter
-	    of the dot.
+		   of the dot.
 	circle,<color>,<radius>
 	circle,<color>,<radius>,<thick>
-	    <radius> is in pixels, meters(m), kilometers(km),
-		     feet(ft), or miles(mi).
+	    <radius> is in pixels, fizzies(fizzy), nautical miles(nmi),
+		     miles(mi), kilometers(km), smoots(smoot), meters(m),
+		     yards(yd), paces(pace), feet(ft), or inches(in).
 	gc
 	    Do geocaching.com circle of radius 0.1 miles
 	puzzle
@@ -95,56 +96,52 @@ DESCRIPTION
 OPTIONS
     -a number	Use map source number/name: [$MAPSRC]
 
-		1 mapblast/vicinity	2 expedia	3 tiger
+		These use the user's browser:
+		-a40 gmap (Google Maps) OR gbike
+		-a50 leaflet
 
-		4 terraserver          5 toposerver      (free USGS)
+		These use an image viewable with xv, eog, gthumb, etc:
+		-a21 osmstatic
+		-a41 gstatic
+		-a42 gstatic-hybrid
+		-a43 gstatic-terrain
+		-a44 gstatic-aerial
+		-a91 tms-osm (OSM Tile Map Server tile.openstreetmap.org)
+		-a92 tms-osmcycle OR tms-ocm
+		     tms-transport OR tms-trans (experimental)
+		     tms-openptmap OR tms-pt
+		     tms-openrailwaymap OR tms-rail
+		-a93 tms-osmde         (Roads German style)
+		     tms-humanitarian OR tms-hot
+		-a94 tms-mapquest OR tms-mq
+		     tms-openaerial OR tms-mqoa
+		-a95 tms-maptoolkit OR tms-mtk
+		-a96 tms-gpsies
+		     tms-thunderforest OR tms-outdoors
+		-a97 tms-terrain       (Stamen, US only)
+		-a98 tms-toner         (Stamen)
+		-a99 tms-watercolor    (Stamen)
+		     tms-gif-*         (GIF TMS, append base URL)
+		     tms-jpg-*
+		     tms-png-*
 
-		6 gc                   7 gc-icons
-
-		8 multimap (worldwide) 9 multimap-aerial (UK only)
-
-		13 tscom OR citipix OR globex OR tscom:citipix
+		The rest of these worked at one time:
+		-a1 mapblast/vicinity
+		-a2 expedia
+		-a3 tiger
+		-a4 terraserver
+		-a5 toposerver      (free USGS)
+		-a6 gc
+		-a7 gc-icons
+		-a8 multimap (worldwide)
+		-a9 multimap-aerial (UK only)
+		-a13 tscom OR citipix OR globex OR tscom:citipix
                        OR tscom:airphoto OR tscom:digitalglobe OR tscom:globex
 		       OR tscom:getmapping OR tscom:getmappingultra.
 		       Best is 22544:1 unless a terraserver.com member who sets
 		       TSCOM_EMAIL and TSCOM_PW in \$HOME.georc.
-
-		20 osm OR osmmapnik OR osmapnik
-
-		21 osmstatic
-
-		30 aolterra
-
-		40 gmap (Google Maps) OR gbike
-
-		41 gstatic
-		42 gstatic-hybrid
-		43 gstatic-terrain
-		44 gstatic-aerial
-
-		50 leaflet
-
-		TMS: may not be available/current everywhere
-		91 tms-osm (OSM Tile Map Server tile.openstreetmap.org)
-		92 tms-osmcycle OR tms-ocm
-		 - tms-transport OR tms-trans (experimental)
-		 - tms-openptmap OR tms-pt
-		 - tms-openrailwaymap OR tms-rail
-		93 tms-osmde         (Roads German style)
-		 - tms-humanitarian OR tms-hot
-		94 tms-mapquest OR tms-mq
-		 - tms-openaerial OR tms-mqoa
-		95 tms-maptoolkit OR tms-mtk
-		96 tms-gpsies
-		 - tms-thunderforest OR tms-outdoors
-		97 tms-terrain       (Stamen, US only)
-		98 tms-toner         (Stamen)
-		99 tms-watercolor    (Stamen)
-
-		 - tms-gif-*         (GIF TMS, append base URL)
-		 - tms-jpg-*
-		 - tms-png-*
-
+		-a20 osm OR osmmapnik OR osmapnik
+		-a30 aolterra
 
     -a black	Black map
     -a white	White map
@@ -929,17 +926,17 @@ tiger2cvt() {
 	    {
 		# circle,color,radius
 		radius = symatt[3]
-		if (radius ~ /[kK][mM]$/)
+		if (radius ~ /[fF][iI][zZ][zZ][yY]$/)
 		{
-		    # radius in kilometers
-		    sub("[kK][mM]", "", radius)
-		    radius = int(PIXELFACT * radius * 1000 / MapScale + 0.5)
+		    # radius in 3.1415 kilometers
+		    sub("[fF][iI][zZ][zZ][yY]", "", radius)
+		    radius = int(PIXELFACT * radius*3.1415*1000/ MapScale + 0.5)
 		}
-		else if (radius ~ /[mM]$/)
+		else if (radius ~ /[nN][mM][iI]$/)
 		{
-		    # radius in meters
-		    sub("[mM]", "", radius)
-		    radius = int(PIXELFACT * radius / MapScale + 0.5)
+		    # radius in nautical miles
+		    sub("[nN][mM][iI]", "", radius)
+		    radius = int(PIXELFACT * radius * 1852 / MapScale + 0.5)
 		}
 		else if (radius ~ /[mM][iI]$/)
 		{
@@ -947,11 +944,47 @@ tiger2cvt() {
 		    sub("[mM][iI]", "", radius)
 		    radius = int(PIXELFACT * radius * 1609.344 / MapScale + 0.5)
 		}
+		else if (radius ~ /[kK][mM]$/)
+		{
+		    # radius in kilometers
+		    sub("[kK][mM]", "", radius)
+		    radius = int(PIXELFACT * radius * 1000 / MapScale + 0.5)
+		}
+		else if (radius ~ /[sS][mM][oO][oO][tT]$/)
+		{
+		    # radius in smoots
+		    sub("[sS][mM][oO][oO][tT]", "", radius)
+		    radius = int(PIXELFACT * radius * 1.70180 / MapScale + 0.5)
+		}
+		else if (radius ~ /[mM]$/)
+		{
+		    # radius in meters
+		    sub("[mM]", "", radius)
+		    radius = int(PIXELFACT * radius / MapScale + 0.5)
+		}
+		else if (radius ~ /[yY][dD]$/)
+		{
+		    # radius in yards
+		    sub("[yY][dD]", "", radius)
+		    radius = int(PIXELFACT * radius * 0.3048*3 / MapScale + 0.5)
+		}
+		else if (radius ~ /[pP][aA][cC][eE]$/)
+		{
+		    # radius in paces (30 inches, 2.5 feet)
+		    sub("[pP][aA][cC][eE]", "", radius)
+		    radius = int(PIXELFACT * radius*0.3048*2.5/ MapScale + 0.5)
+		}
 		else if (radius ~ /[fF][tT]$/)
 		{
 		    # radius in feet
 		    sub("[fF][tT]", "", radius)
 		    radius = int(PIXELFACT * radius * 0.3048 / MapScale + 0.5)
+		}
+		else if (radius ~ /[iI][nN]$/)
+		{
+		    # radius in inches
+		    sub("[iI][nN]", "", radius)
+		    radius = int(PIXELFACT * radius *0.3048/12 / MapScale + 0.5)
 		}
 		circle(posx, posy, symatt[2], radius, 1)
 		imcircle(posx, posy, radius, url)
@@ -1184,7 +1217,9 @@ read_rc_file
 #	Process stdin if number of args is zero
 #
 if [ $# = 0 ]; then
-    echo "Type the geo-map command line(s): "
+    if [ -t 0 ]; then
+	echo "Type the geo-map command line(s): "
+    fi
     while read a; do
 	geo-map -- $a
 	sleep 1
@@ -2068,6 +2103,10 @@ url)
     #
     # Produce a URL you can send to friends
     #
+    # https://docs.microsoft.com/en-us/bingmaps/articles/create-a-custom-map-url
+    #
+    #http://mappoint.msn.com/map.aspx?C=37.9937,-122.479&A=2&P=|37.997533,-122.458416|21|a|L1||37.989900,-122.500200|21|a|L1|
+    #
     # "http://mappoint.msn.com/map.aspx?C=44.9059%2c-93.49907
     # &A=35.83333&P=|44.9059%2c-93.49907|1|Cache|L1|"
     #
@@ -2079,13 +2118,32 @@ url)
     # Table of symbols...
     # http://msdn.microsoft.com/library/default.asp?url=/library/en-us/mpn30m/html/mpn30devTablesIcons.asp
 
-    alti=`awk -v s=$MAPSCALE 'BEGIN { printf "%d", s/3950.0 + 0.5 }'`
-    debug 1 "scale=$MAPSCALE, alti=$alti"
+    ZOOM=16
+    if [ "$MAPSCALE" -lt 65536000 ]; then ZOOM=2; fi
+    if [ "$MAPSCALE" -lt 32768000 ]; then ZOOM=3; fi
+    if [ "$MAPSCALE" -lt 16384000 ]; then ZOOM=4; fi
+    if [ "$MAPSCALE" -lt 8192000 ]; then ZOOM=5; fi
+    if [ "$MAPSCALE" -lt 4096000 ]; then ZOOM=6; fi
+    if [ "$MAPSCALE" -lt 2048000 ]; then ZOOM=7; fi
+    if [ "$MAPSCALE" -lt 1024000 ]; then ZOOM=8; fi
+    if [ "$MAPSCALE" -lt 512000 ]; then ZOOM=9; fi
+    if [ "$MAPSCALE" -lt 256000 ]; then ZOOM=10; fi
+    if [ "$MAPSCALE" -lt 128000 ]; then ZOOM=11; fi
+    if [ "$MAPSCALE" -lt 64000 ]; then ZOOM=12; fi
+    if [ "$MAPSCALE" -lt 32000 ]; then ZOOM=13; fi
+    if [ "$MAPSCALE" -lt 16000 ]; then ZOOM=14; fi
+    if [ "$MAPSCALE" -lt 8000 ]; then ZOOM=15; fi
+    if [ "$MAPSCALE" -lt 4000 ]; then ZOOM=16; fi
+    if [ "$MAPSCALE" -lt 2000 ]; then ZOOM=17; fi
+    if [ "$MAPSCALE" -lt 1000 ]; then ZOOM=18; fi
+    if [ "$MAPSCALE" -lt 500 ]; then ZOOM=19; fi
+    debug 1 "scale=$MAPSCALE, zoom=$ZOOM"
 
-    URL="http://mappoint.msn.com/map.aspx"
-    URL="$URL?C=$LATcenter,$LONcenter"
-    URL="$URL&A=$alti"
-    URL="$URL&P="
+    URL="https://bing.com/maps/default.aspx"
+    URL="https://bing.com/maps/"
+    URL="$URL?cp=$LATcenter~$LONcenter"
+    URL="$URL&lvl=$ZOOM"
+    #URL="$URL&P="
     ((i=0))
     while ((i < Npts)); do
 	LAT=${Lat[i]}
@@ -2113,7 +2171,9 @@ url)
 	if [ $LBLCOORDS = 1 ]; then
 	    LABEL="$LABEL, `degdec2mindec $LAT ns` `degdec2mindec $LON ew`"
 	fi
-	URL="$URL|$LAT,$LON|$SYMBOL|$LABEL|L1|"
+	#URL="$URL|$LAT,$LON|$SYMBOL|$LABEL|L1|"
+	#  sp=point.latitude_longitude_titleString_notesString_linkURL_photoURL
+	URL="$URL&sp=point.${LAT}_${LON}_${LABEL}"
     done 
     echo "$URL"
     exit
@@ -2657,14 +2717,12 @@ ge)
 	hh=`echo $MAPSCALE $scale $MAPHEIGHT | awk '{printf("%.0f",$1/$2*$3)}'`
     done
     debug 1 "new zoom=$z scale=$scale width=$ww height=$hh"
-    URL="http://tah.openstreetmap.org/MapOf/index.php?skip_attr=on&format=png"
-    URL="http://ojw.dev.openstreetmap.org/StaticMap/?att=none&layer=cloudmade_2&mode=Export&show=1"
-    #URL="$URL&lat=$LATcenter&long=$LONcenter"
-    URL="$URL&lat=$LATcenter&lon=$LONcenter"
-    URL="$URL&z=$z"
-    URL="$URL&w=$ww&h=$hh"
+    URL="https://staticmap.openstreetmap.de/staticmap.php?maptype=mapnik"
+    URL="$URL&center=${LATcenter},${LONcenter}"
+    URL="$URL&zoom=$z"
+    URL="$URL&size=${ww}x${hh}"
     debug 1 "curl '$URL'"
-    curl $CURL_OPTS -L -s -A "$UA" "$URL" > $OMAP
+    curl $CURL_OPTS -e "http:www.google.com" -L -s -A "$UA" "$URL" > $OMAP
     convert -geometry ${MAPWIDTH}x${MAPHEIGHT}! $OMAP $IMAP
     GOTFMT=png
     ;;
@@ -3112,14 +3170,26 @@ ge)
         }); 
         if (symbol.match(/circle.*/))
         {
-            function km2m(str, p1, offset, totalstr) { return p1 * 1000; }
+            function fizzy2m(str, p1, offset, totalstr) { return p1 * 3141.5; }
+            function nmi2m(str, p1, offset, totalstr) { return p1 * 1852; }
             function mi2m(str, p1, offset, totalstr) { return p1 * 1609.344; }
-            function ft2m(str, p1, offset, totalstr) { return p1 * .3048; }
+            function km2m(str, p1, offset, totalstr) { return p1 * 1000; }
+            function smoot2m(str, p1, offset, totalstr) { return p1 * 1.70180; }
             function m2m(str, p1, offset, totalstr) { return p1 * 1; }
-            symparms[2] = symparms[2].replace(/(.+)km/, km2m);
+            function yd2m(str, p1, offset, totalstr) { return p1 * .3048 * 3; }
+            function pace2m(str, p1, offset, totalstr) { return p1*.3048*2.5; }
+            function ft2m(str, p1, offset, totalstr) { return p1 * .3048; }
+            function in2m(str, p1, offset, totalstr) { return p1 * .3048 / 12; }
+            symparms[2] = symparms[2].replace(/(.+)fizzy/, fizzy2m);
+            symparms[2] = symparms[2].replace(/(.+)nmi/, nmi2m);
             symparms[2] = symparms[2].replace(/(.+)mi/, mi2m);
-            symparms[2] = symparms[2].replace(/(.+)ft/, ft2m);
+            symparms[2] = symparms[2].replace(/(.+)km/, km2m);
+            symparms[2] = symparms[2].replace(/(.+)smoot/, smoot2m);
             symparms[2] = symparms[2].replace(/(.+)m/, m2m);
+            symparms[2] = symparms[2].replace(/(.+)yd/, yd2m);
+            symparms[2] = symparms[2].replace(/(.+)pace/, pace2m);
+            symparms[2] = symparms[2].replace(/(.+)ft/, ft2m);
+            symparms[2] = symparms[2].replace(/(.+)in/, in2m);
             symparms[3] = symparms[3] ? symparms[3] : 1;	// thick
             var myRadius = new google.maps.Circle({
                 map: map,
@@ -3336,21 +3406,16 @@ ge)
       return [totalLat / locations.length, totalLon / locations.length];
     }
 
-    function km2m(str, p1, offset, totalstr) {
-      return p1 * 1000;
-    }
-
-    function mi2m(str, p1, offset, totalstr) {
-      return p1 * 1609.344;
-    }
-
-    function ft2m(str, p1, offset, totalstr) {
-      return p1 * 0.3048;
-    }
-
-    function m2m(str, p1, offset, totalstr) {
-      return p1 * 1;
-    }
+    function fizzy2m(str, p1, offset, totalstr) { return p1 * 3141.5; }
+    function nmi2m(str, p1, offset, totalstr) { return p1 * 1852; }
+    function mi2m(str, p1, offset, totalstr) { return p1 * 1609.344; }
+    function km2m(str, p1, offset, totalstr) { return p1 * 1000; }
+    function smoot2m(str, p1, offset, totalstr) { return p1 * 1.70180; }
+    function m2m(str, p1, offset, totalstr) { return p1 * 1; }
+    function yd2m(str, p1, offset, totalstr) { return p1 * 0.3048 * 3; }
+    function pace2m(str, p1, offset, totalstr) { return p1 * 0.3048 * 2.5; }
+    function ft2m(str, p1, offset, totalstr) { return p1 * 0.3048; }
+    function in2m(str, p1, offset, totalstr) { return p1 * 0.3048 / 12; }
 
     function color2hex(c) {
       let c2rgb = {
@@ -3489,10 +3554,16 @@ ge)
         L.circle([lat, lon], options).addTo(map);
       }
       if (symbolString.match(/circle.*/)) {
-        symbolParams[2] = symbolParams[2].replace(/(.+)km/, km2m);
+        symbolParams[2] = symbolParams[2].replace(/(.+)fizzy/, fizzy2m);
+        symbolParams[2] = symbolParams[2].replace(/(.+)nmi/, nmi2m);
         symbolParams[2] = symbolParams[2].replace(/(.+)mi/, mi2m);
-        symbolParams[2] = symbolParams[2].replace(/(.+)ft/, ft2m);
+        symbolParams[2] = symbolParams[2].replace(/(.+)km/, km2m);
+        symbolParams[2] = symbolParams[2].replace(/(.+)smoot/, smoot2m);
         symbolParams[2] = symbolParams[2].replace(/(.+)m/, m2m);
+        symbolParams[2] = symbolParams[2].replace(/(.+)yd/, yd2m);
+        symbolParams[2] = symbolParams[2].replace(/(.+)pace/, pace2m);
+        symbolParams[2] = symbolParams[2].replace(/(.+)ft/, ft2m);
+        symbolParams[2] = symbolParams[2].replace(/(.+)in/, in2m);
         symbolParams[3] = symbolParams[3] ? symbolParams[3] : 1;
 
         let options = {
@@ -3694,6 +3765,9 @@ if [ "$OFILE" = "" ]; then
     elif which eog 2>/dev/null; then
 	debug 0 "You need to install 'xv', the best image viewer for Unix/Linux"
 	eog $map
+    elif which gthumb 2>/dev/null; then
+	debug 0 "You need to install 'xv', the best image viewer for Unix/Linux"
+	gthumb $map
     elif which display 2>/dev/null; then
 	debug 0 "You need to install 'xv', the best image viewer for Unix/Linux"
 	display $map

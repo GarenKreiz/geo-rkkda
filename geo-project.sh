@@ -21,9 +21,9 @@ DESCRIPTION
 
 	lat/lon can be specified in DegDec or dotted MinDec format.
 
-	distance is in miles unless suffixed with mil, engchain, chain,
-	fathom, rod, furlong, hand, link, pace, fizzy, smoot, verst,
-	in, ft, yd, km, or m.
+	distance is in miles unless suffixed with engchain, chain, fathom,
+	rod, furlong, hand, link, pace, fizzy, smoot, verst, km, m,
+	nmi (nautical mile), mi (mile), yd, ft, in, or mil (thou).
 
 	bearing is in compass degrees unless suffixed with mil, grad, or rad,
 	or n, nne, ne, ene, e, ese, se, sse, s, ssw, sw, wsw, w, wnw, nw, nnw.
@@ -183,6 +183,8 @@ project_utm() {
 	    { gsub("yd", "", DIST); dist = DIST * 3 * 0.3048 }
 	else if (DIST ~ /mi/)
 	    { gsub("mi", "", DIST); dist = DIST * 1609.344 }
+	else if (DIST ~ /nmi/)
+	    { gsub("nmi", "", DIST); dist = DIST * 1852 }
 	else if (DIST ~ /m/)
 	    { gsub("m", "", DIST); dist = DIST * 1.0 }
 	else
@@ -312,6 +314,8 @@ project_gazza() {
 	    { gsub("yd", "", DIST); s = DIST * 3 * 0.3048 }
 	else if (DIST ~ /mi/)
 	    { gsub("mi", "", DIST); s = DIST * 1609.344 }
+	else if (DIST ~ /nmi/)
+	    { gsub("nmi", "", DIST); s = DIST * 1852 }
 	else if (DIST ~ /m/)
 	    { gsub("m", "", DIST); s = DIST * 1.0 }
 	else
@@ -462,6 +466,8 @@ project_sphere() {
 	    { gsub("yd", "", DIST); s = DIST * 3 * 0.3048 }
 	else if (DIST ~ /mi/)
 	    { gsub("mi", "", DIST); s = DIST * 1609.344 }
+	else if (DIST ~ /nmi/)
+	    { gsub("nmi", "", DIST); s = DIST * 1852 }
 	else if (DIST ~ /m/)
 	    { gsub("m", "", DIST); s = DIST * 1.0 }
 	else

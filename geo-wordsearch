@@ -1,6 +1,7 @@
 #!/bin/sh
 
 PROGNAME="$0"
+CMDLINE="$*"
 
 usage() {
 	cat <<EOF
@@ -26,6 +27,7 @@ OPTIONS
     -u		Uppercase words
     -w		Append 4+ letter words from $LOCALWORDS
     -W		Append 4+ letter words from $SHAREWORDS
+    -H		Render in HTML
     -D lvl	Debug level
 
 EXAMPLES
@@ -211,6 +213,7 @@ UPPER=0
 LOWER=0
 NODIAG=0
 NOBACK=0
+HTML=0
 WORDS=
 SHAREWORDS=/usr/share/dict/words
 if [ -s "$HOME/lib/geo/english.dic" ]; then
@@ -218,7 +221,7 @@ if [ -s "$HOME/lib/geo/english.dic" ]; then
 else
     LOCALWORDS=/usr/lib/geo/english.dic
 fi
-while getopts "bdlNruwWD:h?" opt
+while getopts "bdlNruwWHD:h?" opt
 do
 	case $opt in
 	b)	NOBACK=1;;
@@ -229,6 +232,7 @@ do
 	N)	WORDS=N;;
 	w)	WORDS=w;;
 	W)	WORDS=W;;
+	H)	HTML=1;;
 	D)	DEBUG="$OPTARG";;
 	h|\?)	usage;;
 	esac
@@ -275,6 +279,8 @@ awk -v "DEBUG=$DEBUG" \
     -v UPPER=$UPPER \
     -v NOBACK=$NOBACK \
     -v NODIAG=$NODIAG \
+    -v HTML=$HTML \
+    -v CMDLINE="`basename $PROGNAME` $CMDLINE" \
 '
 function fill_or_blank(a, r,c,R,C, f,	x, y, tmp) {
     # print r,c,R,C
@@ -380,6 +386,16 @@ function printoverlap(nr, nc, 	r, c) {
 }
 
 BEGIN {
+    if (HTML)
+    {
+	printf "<html>\n"
+	printf "<head>\n"
+	printf "<title>%s</title>\n", CMDLINE
+	printf "</head>\n"
+	printf "<body>\n"
+	printf "<pre>\n"
+	printf "$ %s\n", CMDLINE
+    }
     from="NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm"
     to  ="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
     for (i = 1; i <= length(from); i++) {
@@ -502,4 +518,11 @@ END{
     
     if (comments != "")
 	print comments
+
+    if (HTML)
+    {
+	printf "</pre>\n"
+	printf "</body>\n"
+	printf "</html>\n"
+    }
 }' $FILE $WORDS

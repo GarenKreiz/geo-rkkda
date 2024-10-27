@@ -10,7 +10,7 @@
 #
 #	Use at your own risk.  Not suitable for any purpose.  Not legal tender.
 #
-#	$Id: geo-code.sh,v 1.28 2018/05/20 21:02:43 rick Exp $
+#	$Id: geo-code.sh,v 1.30 2019/02/25 19:59:40 rick Exp $
 #
 
 PROGNAME="$0"
@@ -467,9 +467,15 @@ debug 1 "country=<$country> region=<$region>"
 
 # Determine lat, lon, and title
 case "$region" in
-12)	geocode_census;;
-#12)	geocode_us;;
-#12)	geocode_cloudmade;;
+12)
+	if [ "$address" = "" ]; then
+	    xyz
+	else
+	    geocode_census
+	    #geocode_us
+	    #geocode_cloudmade
+	fi
+	;;
 *)	xyz;;
 esac
 

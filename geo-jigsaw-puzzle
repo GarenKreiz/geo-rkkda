@@ -1,0 +1,121 @@
+#!/bin/sh
+
+PROGNAME="$0"
+
+usage() {
+	cat <<EOF
+NAME
+    `basename $PROGNAME` - Solve flash-gear.com Jigsaw Puzzles
+
+SYNOPSIS
+    `basename $PROGNAME` [options] URL ...
+
+    `basename $PROGNAME` [options] URL image
+
+DESCRIPTION
+    Solve flash-gear.com Jigsaw Puzzles. If 'image' is not specified, put
+    it in "gjp-*.jpg", where "*" is equal to the "id=" value.
+
+OPTIONS
+    -d dir	Make directory 'dir' and change to it
+    -D lvl	Debug level
+
+EXAMPLE
+    Solve https://coord.info/GC7ZKPQ :
+
+	$ geo-jigsaw-puzzle \\
+	"http://five.flash-gear.com/npuz/puz.php?c=v&id=4768845&k=32940903" \\
+	    0.jpg
+
+    Or:
+
+	$ geo-jigsaw-puzzle \\
+	    "http://five.flash-gear.com/npuz/puz.php?c=v&id=4768845&k=32940903"
+	gjp-4768845.jpg
+
+EOF
+
+	exit 1
+}
+
+#
+#       Report an error and exit
+#
+error() {
+	echo "`basename $PROGNAME`: $1" >&2
+	exit 1
+}
+
+debug() {
+	if [ $DEBUG -ge $1 ]; then
+	    echo "`basename $PROGNAME`: $2" >&2
+	fi
+}
+
+#
+#       Process the options
+#
+DEBUG=0
+OUTPUT=
+while getopts "d:D:h?" opt
+do
+	case $opt in
+	d)	mkdir -p "$OPTARG"
+		if [ ! -d "$OPTARG" ]; then
+		    error "$OPTARG is not a directory!"
+		fi
+		cd "$OPTARG"
+		;;
+	D)	DEBUG="$OPTARG";;
+	h|\?)	usage;;
+	esac
+done
+shift `expr $OPTIND - 1`
+
+if ! which swfextract >/dev/null 2>&1; then
+    DEBUG=1
+    debug 1 "You need to install swftools to get swfextract!"
+    debug 1 "Fedora: # dnf install swftools"
+    exit
+fi
+
+if [ -s "$HOME/lib/geo/depuzzlefy.pl" ]; then
+    LIBGEO=$HOME/lib/geo
+elif [ -s "/usr/lib/geo/depuzzlefy.pl" ]; then
+    LIBGEO=/usr/lib/geo
+else
+    error "Can't find 'depuzzlefy.pl'"
+fi
+
+#
+#	Main Program
+#
+case $# in
+0)
+	usage
+	;;
+1)
+	tmp=gjp-`echo $1 | sed -e 's/.*id=//' -e 's/.k.*//'`.jpg
+	echo $tmp
+	$LIBGEO/depuzzlefy.pl $1
+	;;
+2)
+	case $2 in
+	http*)
+		for i in $*; do
+		    $LIBGEO/depuzzlefy.pl $i
+		done
+		;;
+	*)
+		output=gjp-`echo $1 | sed -e 's/.*id=//' -e 's/.k.*//' `.jpg
+		$LIBGEO/depuzzlefy.pl $1
+		mv "$output" "$2"
+		;;
+	esac
+	;;
+*)
+	for i in $*; do
+	    $LIBGEO/depuzzlefy.pl $i
+	done
+	;;
+esac

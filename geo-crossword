@@ -13,10 +13,16 @@ SYNOPSIS
 DESCRIPTION
     Search for words in /usr/share/dict/words.
 
-    If 'letters' is prefixed by '!' or '^' then complement the search.
+    If 'letters' is prefixed by '!' or '^', then complement the search.
+
+    If 'letters' is the alternation '|',  then match either alternate
+    expression.
 
 OPTIONS
     -w words	Take words from file
+    -w french	a.k.a. -w ~/lib/geo/french
+    -w german	a.k.a. -w ~/lib/geo/ngerman
+    -w spanish	a.k.a. -w ~/lib/geo/spanish
     -D lvl	Debug level
 
 EXAMPLE
@@ -38,15 +44,19 @@ EXAMPLE
 	amputer
 	empoter
 
+	$ geo-crossword -w french aeou mtcrpaeou p ou t aeou mtcrp
+	amputer
+	empoter
+
     Search in german:
 
-	$ geo-crossword -w ~/lib/geo/ngerman a lz . e
+	$ geo-crossword -w german a lz . e
 	alle
 	alte
 
     Search in spanish:
 
-	$ geo-crossword -w ~/lib/geo/spanish a avr a . a
+	$ geo-crossword -w spanish a avr a . a
 	arada
 	arana
 	avara
@@ -58,6 +68,16 @@ EXAMPLE
 	zaman
 	zoeae
 	zonar
+
+    Search for 3 letter words using alternation:
+
+	$ geo-crossword 'ce|ll|oa|ki' der
+	cee
+	kid
+	kie
+	kir
+	oad
+	oar
 
 SEE ALSO
     http://www.a2zwordfinder.com/crossword_dictionary.html
@@ -94,7 +114,14 @@ WORDS=/usr/share/dict/words
 while getopts "w:D:h?" opt
 do
 	case $opt in
-	w)	WORDS="$OPTARG";;
+	w)	
+		case "$OPTARG" in
+		french)  WORDS=$HOME/lib/geo/french;;
+		german)  WORDS=$HOME/lib/geo/ngerman;;
+		spanish) WORDS=$HOME/lib/geo/spanish;;
+		*)	 WORDS="$OPTARG";;
+		esac
+		;;
 	D)	DEBUG="$OPTARG";;
 	h|\?)	usage;;
 	esac
@@ -111,6 +138,9 @@ fi
 cmd="^"
 for i in $*; do
     case "$i" in
+    *\|*)
+	let=$i
+	;;
     '!'*|^*)
 	let=`echo "$i" | sed -e 's/!/^/' -e "s/^/[/" -e 's/$/]/'  `
 	;;
