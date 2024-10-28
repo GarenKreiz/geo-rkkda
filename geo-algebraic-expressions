@@ -75,11 +75,11 @@ fi
 #	Main Program
 #
 if ! which isympy >/dev/null 2>&1; then
-    error "You need to install pythons 'isympy' (yum install isympy)"
+    error "You need to install pythons 'isympy' (dnf install isympy)"
 fi
 
-for i in $*; do
-    echo "$i"
+for i in "$@"; do
+    echo "$i" | sed 's/ //g'
 done |
 awk -v DEBUG=$DEBUG -v INTS=$INTS '
 function debug(lvl, text) {
@@ -92,7 +92,7 @@ function sympy_printf(str) {
 }
 function sympy_solve(eqns, vars) {
     cmd = "cat"
-    cmd = "python"
+    cmd = "python3"
     commavars = vars
     gsub(" ", ",", commavars)	# i.e. a b c		-> a,b,c,
     gsub(",$", "", commavars)	# i.e. a,b,c,		-> a,b,c
@@ -101,7 +101,11 @@ function sympy_solve(eqns, vars) {
     printf("%s = symbols(\"%s\", integer=True)\n", commavars, vars) | cmd
     sympy_printf( sprintf("%s = symbols(\"%s\", %s)\n",
 		    commavars, vars, INTS ? "integer=True" : "") )
-    sympy_printf( sprintf("print solve([%s],[%s])\n", eqns, commavars) )
+    sympy_printf( sprintf("#print solve([%s],[%s])\n", eqns, commavars) )
+    sympy_printf( sprintf("ans = solve([%s],[%s])\n", eqns, commavars) )
+    sympy_printf( sprintf("#for k in ordered(ans):\n") )
+    sympy_printf( sprintf("#    print(k, ans[k])\n") )
+    sympy_printf( sprintf("print(list(ordered(ans.items())))\n") )
     close(cmd)
 }
 BEGIN {

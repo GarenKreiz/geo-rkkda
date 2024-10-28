@@ -16,6 +16,8 @@ DESCRIPTION
     Solve flash-gear.com Jigsaw Puzzles. If 'image' is not specified, put
     it in "gjp-*.jpg", where "*" is equal to the "id=" value.
 
+    You can also put the URL(s) and image(s) on stdin.
+
 OPTIONS
     -d dir	Make directory 'dir' and change to it
     -D lvl	Debug level
@@ -33,6 +35,28 @@ EXAMPLE
 	    "http://five.flash-gear.com/npuz/puz.php?c=v&id=4768845&k=32940903"
 	gjp-4768845.jpg
 
+JIGIDI JIGSAW PUZZLES
+    You can solve jigidi jigsaw puzzles with the Chrome or Firefox web
+    browsers.
+
+    First, add the Tampermonkey script to Chrome or Firefox:
+
+	https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo
+
+	https://addons.mozilla.org/en-US/firefox/addon/tampermonkey/
+
+    Second, add the Automagic Jigidi Solver from Greasy Fork:
+
+	https://greasyfork.org/en/scripts/394279-automagic-jigidi-solver
+
+    If the script is successfully injected to the Jigidi UI after the puzzle
+    has loaded, you should see a heart button to the left of the pause button.
+
+    If you are logged in to the Jigidi site, it will make you logout.
+
+    You can toggle the automatic solving by pressing the button. If the
+    button is missing, you can try reloading the puzzle. If the problem
+    persists, something is broken. Remember to clear the browser cache!
 EOF
 
 	exit 1
@@ -92,30 +116,44 @@ fi
 #
 case $# in
 0)
-	usage
+	help="*** Type the URL (and optionally, the image) on the command line:"
+	if [ -t 0 ]; then
+	    echo "$help"
+	fi
+	while read url image; do
+	    geo-jigsaw-puzzle "$url" $image
+	    if [ -t 0 ]; then
+		echo
+		echo "$help"
+	    fi
+	done
 	;;
 1)
+	url=`echo "$1" | sed 's/?c=f&/?c=v\&/' `
 	tmp=gjp-`echo $1 | sed -e 's/.*id=//' -e 's/.k.*//'`.jpg
 	echo $tmp
-	$LIBGEO/depuzzlefy.pl $1
+	$LIBGEO/depuzzlefy.pl $url
 	;;
 2)
 	case $2 in
 	http*)
 		for i in $*; do
-		    $LIBGEO/depuzzlefy.pl $i
+		    url=`echo "$1" | sed 's/?c=f&/?c=v\&/' `
+		    $LIBGEO/depuzzlefy.pl $url
 		done
 		;;
 	*)
+		url=`echo "$1" | sed 's/?c=f&/?c=v\&/' `
 		output=gjp-`echo $1 | sed -e 's/.*id=//' -e 's/.k.*//' `.jpg
-		$LIBGEO/depuzzlefy.pl $1
+		$LIBGEO/depuzzlefy.pl $url
 		mv "$output" "$2"
 		;;
 	esac
 	;;
 *)
 	for i in $*; do
-	    $LIBGEO/depuzzlefy.pl $i
+	    url=`echo "$i" | sed 's/?c=f&/?c=v\&/' `
+	    $LIBGEO/depuzzlefy.pl $url
 	done
 	;;
 esac

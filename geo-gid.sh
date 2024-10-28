@@ -10,7 +10,7 @@
 #
 #	Use at your own risk.  Not suitable for any purpose.  Not legal tender.
 #
-#	$Id: geo-gid.sh,v 1.38 2018/07/08 16:12:12 rick Exp $
+#	$Id: geo-gid.sh,v 1.40 2020/10/29 15:56:03 rick Exp $
 #
 
 PROGNAME="$0"
@@ -68,7 +68,10 @@ DEFAULTS
             SQLUSER=gast;       SQLPASS=gast;        SQLDB=geoinfo;
 
 EXAMPLES
-    geo-gid GC4TAX4
+    Get GID:
+
+	$ geo-gid GC1YFXB 
+	GC1YFXB 44.97135 -93.47498 Geocache
 
 SEE ALSO
     geo-newest, geo-found, geo-placed, geo-nearest,
@@ -214,6 +217,9 @@ gc_gid_query() {
 	    error "searching error (4) on $start"
 	fi
 	if grep -s -q "recaptcha_challenge_field" $LOCFILE; then
+	    error "you are not subscription member!"
+	fi
+	if grep -s -q "upgrade=true" $LOCFILE; then
 	    error "you are not subscription member!"
 	fi
 

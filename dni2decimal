@@ -1,0 +1,110 @@
+#!/bin/sh
+
+PROGNAME="$0"
+
+usage() {
+	cat <<EOF
+NAME
+    `basename $PROGNAME` - D'ni to decimal conversion
+
+SYNOPSIS
+    `basename $PROGNAME` [options] [integer]...
+
+DESCRIPTION
+    Perform a D'ni (base 25) to decimal conversion on stdin or the
+    listed integer(s).
+
+OPTIONS
+    -D lvl	Debug level
+
+EXAMPLE
+    From the command line:
+    
+	$ dni2decimal 1 0 22
+	647 = 1*625 + 0*25 + 22*1
+
+    From stdin:
+
+	$ dni2decimal 
+	2 2
+	24
+	1 0 22
+	5
+	1 24
+	5 9
+	52 = 2*25 + 2*1
+	24 = 24*1
+	647 = 1*625 + 0*25 + 22*1
+	5 = 5*1
+	49 = 1*25 + 24*1
+	134 = 5*25 + 9*1
+
+SEE ALSO
+	http://www.ookii.org/Software/Dni
+EOF
+
+	exit 1
+}
+
+#
+#       Report an error and exit
+#
+error() {
+	echo "`basename $PROGNAME`: $1" >&2
+	exit 1
+}
+
+debug() {
+	if [ $DEBUG -ge $1 ]; then
+	    echo "`basename $PROGNAME`: $2" >&2
+	fi
+}
+
+#
+#       Process the options
+#
+DEBUG=0
+#unset OPTIND
+while getopts "D:h?" opt
+do
+	case $opt in
+	D)	DEBUG="$OPTARG";;
+	h|\?)	usage;;
+	esac
+done
+shift `expr $OPTIND - 1`
+
+#
+#	Main Program
+#
+dodni() {
+    awk '
+    function dni(arg1) {
+	i = 0
+	for (j = 1; j <= NF; ++j)
+	    v[i++] = $j
+	n = i
+	b = 1
+	t = 0
+	s = ""
+	for (i = n-1; i >= 0; --i)
+	{
+	    t += v[i] * b
+	    s =  " + " v[i] "*" b s
+	    # print v[i], t, b
+	    if (i == 0) break
+	    b *= 25
+	}
+	sub("^ .", "=", s)
+	print t, s
+    }
+    {
+	dni(25)
+    }
+    '
+}
+if [ $# = 0 ]; then
+    dodni
+else
+    echo "$*" | dodni
+fi

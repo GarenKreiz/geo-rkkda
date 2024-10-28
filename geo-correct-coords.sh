@@ -119,6 +119,12 @@ if [ $# = 0 ]; then
 	LAT=`latlon $LAT`
 	LON=`latlon $LON`
 	debug 1 "process $GCID $LAT $LON"
+	case "$LAT $LON" in
+	*,*)	debug 0 "Comma (,) in $LAT $LON"; continue;;
+	*\;*)	debug 0 "Semicolon (;) in $LAT $LON"; continue;;
+	*\:*)	debug 0 "Colon (:) in $LAT $LON"; continue;;
+	*°*)	debug 0 "Degree symbol (°) in $LAT $LON"; continue;;
+	esac
 	process $GCID $LAT $LON
     done 
 else
@@ -146,6 +152,13 @@ else
 	    LON=`latlon $2`
 	    shift 2
 	    ;;
+	esac
+	debug 1 "process $GCID $LAT $LON"
+	case "$LAT $LON" in
+	*,*)	debug 0 "Comma (,) in $LAT $LON"; continue;;
+	*\;*)	debug 0 "Semicolon (;) in $LAT $LON"; continue;;
+	*\:*)	debug 0 "Colon (:) in $LAT $LON"; continue;;
+	*°*)	debug 0 "Degree symbol (°) in $LAT $LON"; continue;;
 	esac
 	process $GCID $LAT $LON
     done

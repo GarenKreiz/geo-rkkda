@@ -5,7 +5,7 @@
 #
 #	Use at your own risk.  Not suitable for any purpose.  Not legal tender.
 #
-#	$Id: geo-map.sh,v 1.394 2019/01/31 13:19:51 rick Exp $
+#	$Id: geo-map.sh,v 1.415 2019/10/30 14:14:13 rick Exp $
 #
 
 PROGNAME="$0"
@@ -171,8 +171,7 @@ OPTIONS
     -W width	Width of image in pixels [$MAPWIDTH]
     -H height	Height of image in pixels [$MAPHEIGHT]
     -o file	Save map in file, do not display it. Also:
-    -o www	Upload: put-rkkda rkkda/tmp 111.jpg
-
+    -o www	Upload: put-rkkda rkkda/tmp 111.jpg or 111.html (gmap/leaflet)
     -o www:file	Upload: put-rkkda rkkda/tmp file
     -h file	Write an HTML imagemap to file.  Requires -t and -o.
 		If the file is +file, then append the map to the file.
@@ -251,6 +250,14 @@ EXAMPLES
 	    N29.29.730 W98.39.806 c line,red,1 \\
 	    n29.29.725 w98.39.901 e dot,red,1
 
+    A google map with my solved puzzles:
+
+	geo-map -a40 -s0 -t ~/.geo/geo-mystery -S 'cross,blue,10'
+
+    A leaflet map with my solved puzzles:
+
+	geo-map -a50 -s0 -t ~/.geo/geo-mystery -S 'cross,blue,10'
+
 SEE ALSO
     geo-code, geo-nearest, geo-pg, geo-waypoint,
     $WEBHOME
@@ -261,6 +268,12 @@ EOF
 
 #include "geo-common"
 #include "geo-common-gc"
+
+if [ "$OSTYPE" = cygwin ]; then
+    firefox="cygstart firefox"
+else
+    firefox=firefox
+fi
 
 #
 #	Procedure to unpack the pushpin images
@@ -1221,6 +1234,7 @@ if [ $# = 0 ]; then
 	echo "Type the geo-map command line(s): "
     fi
     while read a; do
+	if [ "$a" = "" ]; then continue; fi
 	geo-map -- $a
 	sleep 1
     done
@@ -2915,14 +2929,17 @@ ge)
 
 40|gmap|gbike)
     if [ "$OFILE" = "" ]; then
-	# web only, RER 06/23/16
-	DOWWW=1
-	OFILE=xxx.html
 	# local file
 	DOWWW=0
-	OFILE=/tmp/xxx.html;  #DOWWW=1
+	if [ "$OSTYPE" = cygwin ]; then
+	    OFILE="c:/temp/xxx.html"
+	else
+	    OFILE=/tmp/xxx.html
+	fi
+    elif [ "$OFILE" = "/tmp/111.jpg" ]; then
+	OFILE="/tmp/111.html"
     fi
-    echo $MAPSCALE
+    # echo $MAPSCALE
     ZOOM=16
     if [ "$MAPSCALE" -lt 65536000 ]; then ZOOM=2; fi
     if [ "$MAPSCALE" -lt 32768000 ]; then ZOOM=3; fi
@@ -3102,13 +3119,70 @@ ge)
         var ll = new google.maps.LatLng(locations[i][1], locations[i][2]);
         var symbol = locations[i][3];
         var symparms = symbol.split(",");
-        if (0)
+        var styled = 1;
+
+        if (styled == 0)
             marker = new google.maps.Marker({
                 position: ll,
                 title: locations[i][0],
                 map: map
             });
-        else
+        else if (styled == 1)
+        {
+            var label = i+1 <= 99 ? i+1+"" : "";
+
+	    if (symparms[1] == "gray") symparms[1] = "grey";
+	    if (symparms[1] == "violet") symparms[1] = "purple";
+
+            if (symparms.length <= 1 || symparms[1] == "red")
+            {
+                if (locations.length <= 99)
+                {
+                    var url = "https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_red"
+		    url += label + ".png";
+                    marker = new google.maps.Marker({
+                        position: ll,
+                        title: locations[i][0],
+                        // label: label,
+                        icon: {url: url},
+                        map: map
+                    });
+                }
+                else
+                    marker = new google.maps.Marker({
+                        position: ll,
+                        title: locations[i][0],
+                        map: map
+                    });
+            }
+            else
+            {
+                // var url = "http://maps.google.com/mapfiles/ms/micons/";
+                var url = "https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_";
+                if (locations.length <= 99)
+                {
+                    url += symparms[1] + label + ".png";
+                    marker = new google.maps.Marker({
+                        position: ll,
+                        title: locations[i][0],
+                        // label: label,
+                        icon: {url: url},
+                        map: map
+                    });
+                }
+                else
+                {
+                    url += symparms[1] + ".png";
+                    marker = new google.maps.Marker({
+                        position: ll,
+                        title: locations[i][0],
+                        icon: {url: url},
+                        map: map
+                    });
+                }
+            }
+        }
+        else 
         {
             function color2hex(c)
             {
@@ -3275,23 +3349,26 @@ ge)
     #
     if [ $DOWWW = 1 ]; then
 	put-rkkda -s rkkda/tmp $OFILE
-	firefox "http://www.rkkda.com/tmp/$(basename $OFILE)"
+	$firefox "http://www.rkkda.com/tmp/$(basename $OFILE)"
     else
-	firefox file:$OFILE
+	$firefox file:///$OFILE
     fi
     exit
     ;;
 
 50|leaflet)
     if [ "$OFILE" = "" ]; then
-	# web only, RER 06/23/16
-	DOWWW=1
-	OFILE=xxx.html
 	# local file
 	DOWWW=0
-	OFILE=/tmp/xxx.html;  #DOWWW=1
+	if [ "$OSTYPE" = cygwin ]; then
+	    OFILE="c:/temp/xxx.html"
+	else
+	    OFILE=/tmp/xxx.html
+	fi
+    elif [ "$OFILE" = "/tmp/111.jpg" ]; then
+	OFILE="/tmp/111.html"
     fi
-    echo $MAPSCALE
+    # echo $MAPSCALE
     ZOOM=16
     if [ "$MAPSCALE" -lt 65536000 ]; then ZOOM=2; fi
     if [ "$MAPSCALE" -lt 32768000 ]; then ZOOM=3; fi
@@ -3492,11 +3569,11 @@ ge)
       }).setView(getInitialZoom(), $ZOOM);
     new L.Control.Zoom({ position: 'bottomright' }).addTo(map);
 
-    let OSMStreets = L.tileLayer(
-      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-    ).addTo(map);
     let ESRISatellite = L.tileLayer(
       "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+    ).addTo(map);
+    let OSMStreets = L.tileLayer(
+      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
     );
     let CartoDBVoyager = L.tileLayer(
       "https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}{r}.png"
@@ -3506,8 +3583,8 @@ ge)
     );
 
     let basemapControl = {
-      "OSM Streets": OSMStreets,
       "ESRI Satellite": ESRISatellite,
+      "OSM Streets": OSMStreets,
       "Carto DB Voyager": CartoDBVoyager,
       Wikimedia: Wikimedia
     };
@@ -3646,9 +3723,9 @@ ge)
     #
     if [ $DOWWW = 1 ]; then
 	put-rkkda -s rkkda/tmp $OFILE
-	firefox "http://www.rkkda.com/tmp/$(basename $OFILE)"
+	$firefox "http://www.rkkda.com/tmp/$(basename $OFILE)"
     else
-	firefox file:$OFILE
+	$firefox file:///$OFILE
     fi
     exit
     ;;

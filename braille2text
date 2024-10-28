@@ -109,11 +109,13 @@ doit() {
     /^2-3-5$/ { printf "!"; next }
     /^2-3-6$/ { printf "\""; next }
     /^3-5-6$/ { printf "\""; next }
+    /^3-5-6$/ { printf ")"; next }	# netherlands
     /^3-5$/ { printf "*"; next }
     /^2-3-6$/ { printf "?"; next }
     /^2-3-5-6$/ { printf "/"; next }
     /^3-6$/ { printf "-"; next }
     /^4-6$/ { printf "."; next }	# really italics indicator
+    /^2-6$/ { printf "?"; next }
     /^0$/ { if (0) number=0; printf(" "); next }	# Space
     /^6$/ { capital=1; next }	# Capital
     /^3-4-5-6$/ { number=1; next }	# Number
@@ -122,6 +124,12 @@ doit() {
     # octal encoding
     /^17$/ { number=1; next }
     /^01$/ { number=0; next }
+    /^05$/ { capital=1; next }
+    /^21$/ { printf "?"; next }
+    /^12$/ { printf "*"; next }
+    /^13$/ { printf "\""; next }
+    /^13$/ { printf ")"; next }	# netherlands
+    /^35$/ { printf "è"; next }	# netherlands
     /^40$/ { printf "%s", number ? "1" : "a"; next }
     /^60$/ { printf "%s", number ? "2" : "b"; next }
     /^44$/ { printf "%s", number ? "3" : "c"; next }

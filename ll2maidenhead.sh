@@ -5,7 +5,7 @@ PROGNAME="$0"
 usage() {
 	cat <<EOF
 NAME
-	`basename $PROGNAME` - Lat/long to Maidenhead (Grid Squares)
+	`basename $PROGNAME` - Lat/lon to Maidenhead (Grid Squares)
 
 SYNOPSIS
 	`basename $PROGNAME` [options] lat lon ...

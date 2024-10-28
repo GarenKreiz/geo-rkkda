@@ -65,6 +65,18 @@ DESCRIPTION
 	5 	Y 	Z	0	1	2	3
 	6 	4	5	6	7	8	9
 
+    Or with -8:
+
+	row/col	1 	2 	3 	4 	5	6	7	8
+	1	A	B	C	D	E	F	G	H
+	2	I	J	K	L	M	N	O	P
+	3	Q	R	S	T	U	V	W	X
+	4	Y	Z	0	1	2	3	4	5
+	5	6	7	8	9		!	"	#
+	6	$	%	&	'	(	)	*	+
+	7	,	-	.	/	:	;	<	=
+	8	>	?	@	[	bslash	]	^ 	_
+
     It can use a period (.) or a asterisk (*).  A slash (/) is translated to
     a space.
 
@@ -72,6 +84,9 @@ DESCRIPTION
     of tapping.
 
 OPTIONS
+    -e		Encode
+    -k key	Specify the key,
+		e.g. -k CRYPTAGE is cryptagebdfhiklmnoqsuvwxz
     -n		Numbers instead of '.' or '*'
     -r		Col/Row instead of Row/Col
     -c		Combine c/k (default)
@@ -79,6 +94,8 @@ OPTIONS
     -u		Combine u/v instead of c/k
     -z		Combine y/z instead of c/k
     -6		Matrix is 6x6, A..Z and 0..9 can be done.
+    -8		Matrix is 8x8,
+		abcdefghijklmnopqrstuvwxyz0123456789 !"#$%&'()*+,-./:;<=>?@[\]^_
     -D lvl	Debug level
 
 EXAMPLES
@@ -101,6 +118,22 @@ EXAMPLES
 
 	$ tap-code -6 31 15 15 42 / 42 22 43 / 55 56 53 53 22 36
 	meet thu 2300hr
+
+    Encode:
+
+	$ tap-code -e dear abby
+	> . .... . ..... . . .... .. / . . . .. . .. ..... .... 
+
+    Encode with numbers:
+
+	$ tap-code -e -n dear abby
+	14 15 11 42 / 11 12 12 54 
+
+    Encode https://coord.info/GC865YT :
+
+	$ tap-code -r -e -n -6 -k 367EUROS cher
+	Key:  36 367eurosabcdfghijklmnpqtvwxyz0124589
+	52 33 41 61 
 
 SEE ALSO
     http://en.wikipedia.org/wiki/Tap_code
@@ -133,16 +166,21 @@ NUM=0
 IJ=c
 REV=0
 SIZE=5
-while getopts "cinruz6D:h?" opt
+ENCODE=0
+KEY=
+while getopts "ceik:nruz68D:h?" opt
 do
 	case $opt in
 	c)	IJ=c;;
+	e)	ENCODE=1;;
 	i)	IJ=i;;
+	k)	KEY="$OPTARG";;
 	n)	NUM=1;;
 	r)	REV=1;;
 	u)	IJ=u;;
 	z)	IJ=z;;
 	6)	SIZE=6;;
+	8)	SIZE=8;;
 	D)	DEBUG="$OPTARG";;
 	h|\?)	usage;;
 	esac
@@ -157,7 +195,9 @@ one_word_per_line() {
 #	Main Program
 #
 doit() {
-    if [ $NUM = 1 ]; then
+    if [ $ENCODE = 1 ]; then
+	cat
+    elif [ $NUM = 1 ]; then
 	sed -e 's/ /sp /g' -e 's/[0-9][0-9]/& /g'
     else
 	tr '*' '.' |
@@ -171,10 +211,14 @@ doit() {
 	    -e 's/\([0-9]\) *\([0-9]\)/\1\2/g'
     fi |
     one_word_per_line |
-    awk -v IJ=$IJ -v REV=$REV -v SIZE=$SIZE '
+    awk -v ENCODE=$ENCODE -v NUM=$NUM -v KEY=$KEY \
+	-v IJ=$IJ -v REV=$REV -v SIZE=$SIZE '
     BEGIN {
 	if (SIZE == "6")
 	    ps="abcdefghijklmnopqrstuvwxyz0123456789"
+	else if (SIZE == "8")
+	    ps="abcdefghijklmnopqrstuvwxyz0123456789 " \
+		"!\"#$%&'"'"'()*+,-./:;<=>?@[\\]^_"
 	else if (IJ == "c")
 	    ps="abcdefghijlmnopqrstuvwxyz"
 	else if (IJ == "i")
@@ -187,8 +231,44 @@ doit() {
 	{
 	    printf "tap-code: no decode for %s\n", IJ
 	}
+	if (KEY != "")
+	{
+	    KEY = tolower(KEY)
+	    for (i = 1; i <= length(KEY); ++i)
+		sub(substr(KEY, i, 1), "", ps)
+	    ps = KEY ps
+	    print "Key: ", length(ps), ps
+	}
     }
-    /[1-6][1-6]/ {
+    ENCODE {
+	if (n++)
+	    printf "/ "
+	d = "......"
+	for (i = 1; i <= length($0); ++i)
+	{
+	    ch = substr($0, i, 1)
+	    p = index(ps, ch)
+	    if (REV)
+	    {
+		r = int((p-1) / SIZE) + 1
+		c = (p-1) % SIZE + 1
+		if (NUM)
+		    printf "%d%d ", c, r
+		else
+		    printf "%s %s ", substr(d, 1, c), substr(d, 1, r)
+	    }
+	    else
+	    {
+		r = int((p-1) / SIZE) + 1
+		c = (p-1) % SIZE + 1
+		if (NUM)
+		    printf "%d%d ", r, c
+		else
+		    printf "%s %s ", substr(d, 1, r), substr(d, 1, c)
+	    }
+	}
+    }
+    !ENCODE && /[1-6][1-6]/ {
 	if (REV)
 	{
 	    c = substr($0, 1, 1)

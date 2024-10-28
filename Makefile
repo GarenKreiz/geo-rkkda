@@ -2,6 +2,9 @@ PREFIX?=$$HOME
 
 CFLAGS += -Wall
 
+UNAMEN := $(shell uname -n)
+HOST := quad.rkkda.org
+
 UNAME := $(shell uname)
 ROOT=root
 SED=sed
@@ -104,7 +107,6 @@ SHELLS=	geo-nearest geo-code geo-count geo-usernum geo-waypoint \
 	smilies2cryptogram \
 	geo-thumbnails \
 	negadecimal \
-	wherigo2jpg \
 	wherigo2lua \
 	urwigo-decode \
 	reverse-wherigo \
@@ -142,11 +144,23 @@ SHELLS=	geo-nearest geo-code geo-count geo-usernum geo-waypoint \
 	geo-math-functions \
 	geo-addsub \
 	geo-jigsaw-puzzle \
+	py-alphametic \
+	gpx2mystery \
+	ll2osmtile \
+	osmtile2ll \
+	ll2pluscodes \
+	pluscodes2ll \
+	number2text \
+	dni2decimal \
+	geo-gcd \
+	ll2mapcode \
+	mapcode2ll \
+	geo-logic-box \
 	$(NULL)
 
 	# Private stock
 	ifeq ($(wildcard geo-soon*.sh),geo-soon.sh)
-		SHELLS+=geo-soon
+		# SHELLS+=geo-soon
 		# SHELLS+=geo-unk
 		SHELLS+=update-caches
 		SHELLS+=geo-pocket-query-newest
@@ -164,6 +178,7 @@ FILES= \
 	geo-code.sh geo-waypoint.sh \
 	geo-common geo-common-gc geo-common-nc geo-common-oc geo-common-ok \
 	geo-common-gpsdrive geo-common-tangogps \
+	geo-awk-library \
 	geo-found.sh geo-nearest.sh geo-newest.sh geo-placed.sh \
 	geo-keyword.sh \
 	geo-count.sh geo-usernum.sh \
@@ -286,7 +301,6 @@ FILES= \
 	smilies2cryptogram \
 	geo-thumbnails \
 	negadecimal \
-	wherigo2jpg \
 	wherigo2lua \
 	urwigo-decode \
 	reverse-wherigo \
@@ -325,6 +339,19 @@ FILES= \
 	geo-math-functions \
 	geo-addsub \
 	geo-jigsaw-puzzle \
+	py-alphametic \
+	enigma.py \
+	gpx2mystery \
+	ll2osmtile.sh \
+	osmtile2ll \
+	ll2pluscodes.sh \
+	pluscodes2ll \
+	number2text \
+	dni2decimal \
+	geo-gcd \
+	ll2mapcode \
+	mapcode2ll \
+	geo-logic-box \
 	$(NULL)
 
 #
@@ -361,7 +388,7 @@ all-test:
 	    echo "      ***"; \
             echo "      *** Error: $(CC) is not installed!"; \
             echo "      ***"; \
-            echo "      *** Install Software Development package (yum install gcc)"; \
+            echo "      *** Install Software Development package (dnf install gcc)"; \
             echo "      ***"; \
             exit 1; \
 	fi
@@ -371,7 +398,7 @@ all-test:
 	    echo "      ***"; \
 	    echo "      *** Error: /usr/include/stdio.h is not installed!"; \
 	    echo "      ***"; \
-	    echo "      *** Install Software Development package (yum install gcc)"; \
+	    echo "      *** Install Software Development package (dnf install gcc)"; \
 	    echo "      *** for Ubuntu: sudo apt-get install build-essential"; \
 	    echo "      ***"; \
 	    exit 1; \
@@ -380,7 +407,7 @@ all-test:
             echo "      ***"; \
             echo "      *** Error: gpsbabel is not installed!"; \
             echo "      ***"; \
-            echo "      *** Install gpsbabel package (yum install gpsbabel)"; \
+            echo "      *** Install gpsbabel package (dnf install gpsbabel)"; \
             echo "      ***"; \
             exit 1; \
         fi
@@ -388,7 +415,7 @@ all-test:
             echo "      ***"; \
             echo "      *** Error: curl is not installed!"; \
             echo "      ***"; \
-            echo "      *** Install curl package (yum install curl)"; \
+            echo "      *** Install curl package (dnf install curl)"; \
             echo "      ***"; \
             exit 1; \
         fi
@@ -396,7 +423,7 @@ all-test:
             echo "      ***"; \
             echo "      *** Error: dos2unix is not installed!"; \
             echo "      ***"; \
-            echo "      *** Install dos2unix package (yum install dos2unix)"; \
+            echo "      *** Install dos2unix package (dnf install dos2unix)"; \
             echo "      *** (apt-get install dos2unix OR tofrodos)"; \
             echo "      ***"; \
             exit 1; \
@@ -405,7 +432,7 @@ all-test:
             echo "      ***"; \
             echo "      *** Error: dc is not installed!"; \
             echo "      ***"; \
-            echo "      *** Install bc OR dc package (yum install bc dc)"; \
+            echo "      *** Install bc OR dc package (dnf install bc dc)"; \
             echo "      ***"; \
             exit 1; \
         fi
@@ -413,7 +440,7 @@ all-test:
             echo "      ***"; \
             echo "      *** Error: units is not installed!"; \
             echo "      ***"; \
-            echo "      *** Install units package (yum install units)"; \
+            echo "      *** Install units package (dnf install units)"; \
             echo "      ***"; \
             exit 1; \
         fi
@@ -421,7 +448,7 @@ all-test:
             echo "      ***"; \
             echo "      *** Error: uuencode is not installed!"; \
             echo "      ***"; \
-            echo "      *** Install sharutils package (yum install sharutils)"; \
+            echo "      *** Install sharutils package (dnf install sharutils)"; \
             echo "      ***"; \
             exit 1; \
         fi
@@ -429,7 +456,7 @@ all-test:
             echo "      ***"; \
             echo "      *** Error: gawk is not installed!"; \
             echo "      ***"; \
-            echo "      *** Install gawk package (yum install gawk)"; \
+            echo "      *** Install gawk package (dnf install gawk)"; \
             echo "      ***"; \
             exit 1; \
         fi
@@ -493,7 +520,7 @@ geo-triangulation: geo-common Makefile
 geo-polygon: geo-common Makefile
 geo-intersect: geo-common Makefile
 geo-coords: geo-common Makefile
-geo-project: geo-common Makefile
+geo-project: geo-common geo-awk-library Makefile
 geo-code: geo-common Makefile
 geo-zipcode: geo-common Makefile
 geo-waypoint: geo-common geo-common-gpsdrive Makefile
@@ -520,6 +547,7 @@ geo-usernum: geo-common geo-common-gc Makefile
 geo-cs-html2db: geo-common geo-common-gc Makefile
 geo-soon: geo-common geo-common-gc geo-common-gpsdrive Makefile
 gpx-unfound: geo-common geo-common-oc Makefile
+ll2pluscodes: geo-common Makefile
 
 geo-images: images Makefile
 	find images -type f | sed '/CVS/d' | \
@@ -546,6 +574,7 @@ install: all
 	install -m 644 navaho.dic $(PREFIX)/lib/geo
 	install -m 644 $(CROSSWORD_LANGS) $(PREFIX)/lib/geo
 	install -m 755 depuzzlefy.pl $(PREFIX)/lib/geo
+	install -m 644 enigma.py $(PREFIX)/lib/geo
 
 uninstall:
 	if [ -d $(PREFIX)/bin/ ]; then \
@@ -556,7 +585,7 @@ uninstall:
 	    cd $$HOME/public_html && rm -f geodetics.html greatcircle.html; \
 	fi
 	if [ -d $(PREFIX)/lib/geo ]; then \
-	    cd $(PREFIX)/lib/geo && rm -f english.dic navaho.dic $(CROSSWORD_LANGS) depuzzlefy.pl; \
+	    cd $(PREFIX)/lib/geo && rm -f english.dic navaho.dic $(CROSSWORD_LANGS) depuzzlefy.pl enigma.py; \
 	fi
 
 clean:
@@ -578,6 +607,7 @@ clean:
 	rm -f ok-nearest ok-newest
 	rm -f ll2maidenhead maidenhead2ll ll2usng usng2ll ll2rd rd2ll
 	rm -f ll2osg osg2ll ll2geohash
+	rm -f ll2pluscodes
 	rm -f geo-correct-coords
 	rm -f geo-phone2word
 	rm -f gpx-unfound
@@ -597,11 +627,11 @@ MANPAGES7=geo-countries-states.7
 MANPAGES=$(MANPAGES1) $(MANPAGES7)
 GROFF=groff
 ifeq ($(PREFIX),$$HOME)
-    DOCDIR=/usr/share/doc/geo/
-    MANDIR=/usr/share/man/
+    DOCDIR=/usr/share/doc/geo
+    MANDIR=/usr/share/man
 else
-    DOCDIR=$(PREFIX)/share/doc/geo/
-    MANDIR=$(PREFIX)/share/man/
+    DOCDIR=$(PREFIX)/share/doc/geo
+    MANDIR=$(PREFIX)/share/man
 endif
 
 geo-countries-states.7: geo-countries-states.7in states.db countries.db Makefile
@@ -619,8 +649,11 @@ utm/utm2ll.1: utm/utm2ll
 man: $(MANPAGES) manual.pdf
 
 install-man: man
-	install $(MANPAGES1) $(MANDIR)/man1/
-	install $(MANPAGES7) $(MANDIR)/man7/
+	install -d -m 755 $(MANDIR)
+	install -d -m 755 $(MANDIR)/man1
+	install -d -m 755 $(MANDIR)/man7
+	install $(MANPAGES1) $(MANDIR)/man1
+	install $(MANPAGES7) $(MANDIR)/man7
 	install -d -m 755 $(DOCDIR)
 	install manual.pdf $(DOCDIR)
 
@@ -630,9 +663,24 @@ manual.pdf: $(MANPAGES)
 #
 #	The author (Rick) does this:
 #
-w:	all
+w:	all enigma
 	$(MAKE) man install 
 	$(ROOT) $(MAKE) install-man
+
+ENIGMA=enigma.py
+
+enigma:
+	# RCS $$Header: is expanded!
+	if [ "$(UNAMEN)" = "$(HOST)" ]; then \
+		cd ../py-enigma/; git pull -q; \
+		sed -e "/RCS.*Header/d" $(ENIGMA) > /tmp/$(ENIGMA).1; \
+		sed -e "/RCS.*Header/d" ../geo/$(ENIGMA) > /tmp/$(ENIGMA).2; \
+		if ! cmp -s /tmp/$(ENIGMA).1 /tmp/$(ENIGMA).2; then \
+			cp -a $(ENIGMA) ../geo/$(ENIGMA); \
+			cd ../geo; cvs commit -m aaa enigma.py; \
+		fi; \
+		rm -f /tmp/$(ENIGMA).1 /tmp/$(ENIGMA).2; \
+	fi
 
 #
 #	Populate the website

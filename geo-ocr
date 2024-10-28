@@ -15,11 +15,17 @@ DESCRIPTION
 
 OPTIONS
     -l lang	Language, including:
-		pigpen (pig), pigpen2, dancing-men (men), aurebesh (starwars)
+
+		pigpen (pig)
+		pigpen2
+		dancing-men (men) using rumkin font
+		men2 using dcode font
+		aurebesh (starwars)
+
     -D lvl	Debug level
 
 EXAMPLES
-    Convert dancing men:
+    Convert dancing men using http://rumkin.com font:
 
 	$ geo-ocr -l men xxx.jpg
 	Tesseract Open Source OCR Engine v3.02.02 with Leptonica
@@ -29,10 +35,32 @@ EXAMPLES
 	DEGREESTHIRTYSEVE NDOTEI
 	GHTY FIVEDOTDOT DOTDOTDOT
 
+    Convert dancing men using https://www.dcode.fr font:
+
+	$ geo-ocr -l men2 ~/tmp/0.jpeg
+	NORTHFOURT
+	YONEELEVEN
+	POINTONEHU
+	NDREDSIXTY
+	SEVENWESTE
+	IGHTYONETW
+	ENTYPOINTF
+	OURHUNDRED
+	TWENTYONE
+
+    Convert aurebesh (Star Wars) language, https://coord.info/GC7T4RV:
+
+	$ geo-ocr -l aurebesh 0.png
+	Congratulations you have figured out to use Pe Galactic basic writing
+	system of Purebesh from Star wars to solve t puzzle learn the final
+	 ...
+
 FILES
     /usr/share/tesseract/tessdata/*.traineddata
 
     /usr/local/share/tessdata/*.traineddata
+
+    /home/rick/proj/pigpen/
 
 SEE ALSO
     http://www.rkkda.com/sw/ocr/
@@ -78,10 +106,10 @@ done
 shift `expr $OPTIND - 1`
 
 if ! type tesseract >/dev/null 2>&1; then
-    error "tesseract not found! yum install tesseract leptonica"
+    error "tesseract not found! dnf install tesseract leptonica"
 fi
 if ! test -d /usr/include/leptonica; then
-    error "leptonica not found! yum install tesseract leptonica"
+    error "leptonica not found! dnf install tesseract leptonica"
 fi
 
 if [ $# = 0 ]; then
@@ -93,9 +121,9 @@ fi
 #
 if [ "$LANG" = pig ]; then
     echo "tesseract: ##XX order:"
-    tesseract $1 -l $LANG stdout
+    tesseract $1 stdout -l $LANG
     echo "tesseract: #X#X order:"
-    tesseract $1 -l $LANG stdout | tr 'PHNKQJRSTUVLMO' 'THROUNVJKLMPQS'
+    tesseract $1 stdout -l $LANG | tr 'PHNKQJRSTUVLMO' 'THROUNVJKLMPQS'
 else
-    tesseract $1 -l $LANG stdout
+    tesseract $1 stdout -l $LANG
 fi

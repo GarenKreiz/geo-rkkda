@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-#	$Id: geo-polygon.sh,v 1.26 2017/06/18 21:48:32 rick Exp $
+#	$Id: geo-polygon.sh,v 1.29 2020/06/26 15:17:17 rick Exp $
 #
 
 PROGNAME="$0"
@@ -182,13 +182,13 @@ find_midpoint()
 find_tricenter()
 {
     center=$1
-    python - <<-EOF
+    python3 - <<-EOF
 	from sympy import *
 	from sympy.geometry import Point, Triangle
 	p1, p2, p3 = Point(${LON[0]}, ${LAT[0]}), \
 		Point(${LON[1]}, ${LAT[1]}), Point(${LON[2]}, ${LAT[2]})
 	t = Triangle(p1, p2, p3)
-	print float(t.${center}.x), float(t.${center}.y)
+	print(float(t.${center}.x), float(t.${center}.y))
 	EOF
 }
 
@@ -310,18 +310,18 @@ else
 
     if [ $TRI = 1 -a $n = 3 ]; then
 	if ! which isympy >/dev/null 2>&1; then
-	    error "You need to install pythons 'isympy' (yum install isympy)"
+	    error "You need to install pythons 'isympy' (dnf install isympy)"
 	fi
-	printf "Center:		"
+	printf "Center:         "
 	utm2ll -orickdec -- $(echo $zone | sed 's/\([A-Z]\).*/\1/') \
 	    $(find_center $n)
-	printf "Circumcenter:	"
+	printf "Circumcenter:   "
 	utm2ll -orickdec -- $(echo $zone | sed 's/\([A-Z]\).*/\1/') \
 	    $(find_tricenter circumcenter)
-	printf "Incenter:	"
+	printf "Incenter:       "
 	utm2ll -orickdec -- $(echo $zone | sed 's/\([A-Z]\).*/\1/') \
 	    $(find_tricenter incenter)
-	printf "Orthocenter:	"
+	printf "Orthocenter:    "
 	utm2ll -orickdec -- $(echo $zone | sed 's/\([A-Z]\).*/\1/') \
 	    $(find_tricenter orthocenter)
     else

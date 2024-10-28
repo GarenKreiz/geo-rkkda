@@ -1,0 +1,171 @@
+#!/bin/bash
+
+PROGNAME="$0"
+
+usage() {
+	cat <<EOF
+NAME
+    `basename $PROGNAME` - solve a math puzzle in which letters stand for digits
+
+SYNOPSIS
+    `basename $PROGNAME` [options] equation ...
+
+DESCRIPTION
+    The four basic operators (+ - * /) and exponentiation (**) are understood.
+    Exponentiation with a caret (^) is converted to double star (**). 
+    Less than (<) and greater than (>) is also handled.
+    Modulo (%) is also handled.
+
+    Jim Randell's program has also allowed for several Alphametic expressions
+    to be solved simultaneously.
+
+    enigma.py says it is "Free for non-commercial use".
+
+    NOTE: The python interpreter gives:
+
+	SyntaxError: too many statically nested blocks
+
+    if you want to use more than 19 variables. The number of statically
+    nested blocks in Python is limited to 20.
+
+OPTIONS
+    -o opt	Pass "opt" to enigma.py
+
+    -o --base=N	Pass --base=N to enigma.py
+    -o --help	Pass --help to enigma.py
+    -D lvl	Debug level
+
+EXAMPLES
+    Example geo-alphametic 'hscoocoh - ddsgooc0 = oifidsh' recast as:
+
+	$ py-alphametic 'hscoocoh - ddsgooc * 10 = oifidsh'
+	(HSCOOCOH - DDSGOOC * 10 = OIFIDSH)
+	(83255258 - 7730552 * 10 = 5949738)
+	C=2 D=7 F=4 G=0 H=8 I=9 O=5 S=3
+	(83255258 - 7734552 * 10 = 5909738)
+	C=2 D=7 F=0 G=4 H=8 I=9 O=5 S=3
+	[2 solutions]
+
+    Greater than:
+
+	$ py-alphametic "SAND + SUN + SEX + SEA = IBIZA" \\
+			"SAND > SUN > SEX > SEA"
+	(SAND + SUN + SEX + SEA = IBIZA) (SAND > SUN > SEX > SEA)
+	(9304 + 970 + 956 + 953 = 12183) (9304 > 970 > 956 > 953)
+	A=3 B=2 D=4 E=5 I=1 N=0 S=9 U=7 X=6 Z=8
+	(9306 + 970 + 954 + 953 = 12183) (9306 > 970 > 954 > 953)
+	A=3 B=2 D=6 E=5 I=1 N=0 S=9 U=7 X=4 Z=8
+	[2 solutions]
+
+    Modolu 26:
+
+	$ py-alphametic "ALPHABET % 26 = 0" "ALPHABET % 24 = 0" \\
+			"ALPHA + BETA + GAMMA = DELTA" "GAMMA % 3 = 0"
+	(ALPHABET % 26 = 0) (ALPHABET % 24 = 0) \\
+	    (ALPHA + BETA + GAMMA = DELTA) (GAMMA % 3 = 0)
+	(56375904 % 26 = 0) (56375904 % 24 = 0) \\
+	    (56375 + 9045 + 15225 = 80645) (15225 % 3 = 0)
+	A=5 B=9 D=8 E=0 G=1 H=7 L=6 M=2 P=3 T=4
+	[1 solution]
+
+    Eight simultaneous equations:
+
+	$ py-alphametic a+b+c=12 d+e+f=15 g+h+i=18 a+d+g=17 b+e+h=14 c+f+i=14 \\
+	    c+e+g=23 a+e+i=11
+	(A + B + C = 12) (D + E + F = 15) (G + H + I = 18) (A + D + G = 17) \\
+	    (B + E + H = 14) (C + F + I = 14) (C + E + G = 23) (A + E + I = 11)
+	(1 + 3 + 8 = 12) (7 + 6 + 2 = 15) (9 + 5 + 4 = 18) (1 + 7 + 9 = 17) \\
+	    (3 + 6 + 5 = 14) (8 + 2 + 4 = 14) (8 + 6 + 9 = 23) (1 + 6 + 4 = 11)
+	A=1 B=3 C=8 D=7 E=6 F=2 G=9 H=5 I=4
+	(3 + 1 + 8 = 12) (5 + 6 + 4 = 15) (9 + 7 + 2 = 18) (3 + 5 + 9 = 17) \\
+	    (1 + 6 + 7 = 14) (8 + 4 + 2 = 14) (8 + 6 + 9 = 23) (3 + 6 + 2 = 11)
+	A=3 B=1 C=8 D=5 E=6 F=4 G=9 H=7 I=2
+	[2 solutions]
+
+    Base 11:
+
+	$ py-alphametic -o --base=11 "GOLD + DALEY = THOMAS"
+	(GOLD  +  DALEY = THOMAS)
+	(639A  +  A7985 = 103274)
+	A=7 D=10 E=8 G=6 H=0 L=9 M=2 O=3 S=4 T=1 Y=5
+	[1 solution]
+
+SEE ALSO
+    https://github.com/enigmatic-code/py-enigma
+
+    http://www.magwag.plus.com/jim/enigma.html
+
+    https://enigmaticcode.wordpress.com/2016/06/22/solving-alphametics-with-python/
+
+    http://www.iread.it/cryptarithms.php
+EOF
+
+	exit 1
+}
+
+#
+#       Report an error and exit
+#
+error() {
+	echo "`basename $PROGNAME`: $1" >&2
+	exit 1
+}
+
+debug() {
+	if [ $DEBUG -ge $1 ]; then
+	    echo "`basename $PROGNAME`: $2" >&2
+	fi
+}
+
+#
+#       Process the options
+#
+DEBUG=0
+OPT=
+while getopts "o:D:h?" opt
+do
+	case $opt in
+	o)	OPT="$OPT $OPTARG";;
+	D)	DEBUG="$OPTARG";;
+	h|\?)	usage;;
+	esac
+done
+shift `expr $OPTIND - 1`
+
+if [ -s "$HOME/proj/py-enigma/enigma.py" ]; then
+    ENIGMA="$HOME/proj/py-enigma/enigma"
+elif [ -s "$HOME/lib/geo/enigma.py" ]; then
+    ENIGMA=$HOME/lib/geo/enigma
+elif [ -s "/usr/lib/geo/enigma.py" ]; then
+    ENIGMA=/usr/lib/geo/enigma
+else
+    error "Can't find 'engima.py'"
+fi
+
+if [ $# = 0 ]; then
+    if [ "$OPT" = " --help" ]; then
+	python -m $ENIGMA Alphametic $OPT
+	exit
+    else
+	usage
+    fi
+fi
+
+#
+#	Main Program
+#
+# python -m $ENIGMA Alphametic "$@"
+n=0
+for i in "$@"; do
+    s=`echo "$i" |
+	tr a-z A-Z |
+	sed -e 's/\^/**/g' -e 's/[[:punct:]]/ & /g' -e 's/ [*]  [*] / ** /g'
+	`
+    cmd[$n]="$s"
+    ((n=n+1))
+done
+
+# echo "${cmd[@]}"
+
+#python -m $ENIGMA Alphametic $OPT "${cmd[@]}"
+python $ENIGMA.py Alphametic $OPT "${cmd[@]}" | sed 's/) \/ /)\n/'

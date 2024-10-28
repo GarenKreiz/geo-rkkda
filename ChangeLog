@@ -1,3 +1,102 @@
+2021-01-01      Rick Richardson <rick.richardson@comcast.net>
+	* geo-demand: bump CLAMP_MAX to 2022
+
+2020-10-29      Rick Richardson <rick.richardson@comcast.net>
+	* geo-gid: only "Premium Member Only" subscribers.
+	* geo-gpx: open up to basic and PMO subscribers.
+
+2020-10-26      Rick Richardson <rick.richardson@comcast.net>
+	* geo-html2gpx: Attributes and type fixed due to GC.com changes
+
+2020-08-16      Rick Richardson <rick.richardson@comcast.net>
+	* geo-wordsearch: Added -L french, -L german, or -L spanish
+
+2020-08-15      Rick Richardson <rick.richardson@comcast.net>
+	* geo-text2numbers: Added -s Remove the sed stuff
+
+2020-08-13      Rick Richardson <rick.richardson@comcast.net>
+	* New program: geo-logic-box - Logic box/grid/grille solver
+
+2020-08-08      Rick Richardson <rick.richardson@comcast.net>
+	* wherigo2lua: Update to use: unluac_2020_05_28.jar
+
+2020-08-06      Rick Richardson <rick.richardson@comcast.net>
+	* wherigo2lua: Use python3 first.
+
+2020-07-31      Rick Richardson <rick.richardson@comcast.net>
+	* geo-sub: Added -z Atbash cipher
+
+2020-03-23      Rick Richardson <rick.richardson@comcast.net>
+	* New program: mapcode2ll - mapcode to lat/lon
+	* New program: ll2mapcode - Lat/lon to mapcode
+
+2020-03-17      Rick Richardson <rick.richardson@comcast.net>
+	* geo-zipcode: Add -c city st
+
+2020-01-19      Rick Richardson <rick.richardson@comcast.net>
+	* geo-jigsaw-puzzle: Forgot to install depuzzlefy.pl!
+
+2020-01-09      Rick Richardson <rick.richardson@comcast.net>
+	* geo-wordsearch: Print horizontal and vertical in
+	    normal top to bottom and reverse bottom to top.
+
+2019-12-04      Rick Richardson <rick.richardson@comcast.net>
+	* New program: geo-gcd - GCD and LCM of N numbers
+
+2019-12-03      Rick Richardson <rick.richardson@comcast.net>
+	* New program: dni2decimal - D'ni to decimal conversion
+
+2019-11-27      Rick Richardson <rick.richardson@comcast.net>
+	* New program: number2text - Number to text
+
+2019-11-25      Rick Richardson <rick.richardson@comcast.net>
+	* geo-project: Implement geomidpoint.com (-m) and make it the default.
+
+2019-11-19      Rick Richardson <rick.richardson@comcast.net>
+	* geo-algebraic-expressions, geo-polygon:
+		Change to make them python3.
+
+2019-10-30      Rick Richardson <rick.richardson@comcast.net>
+	* geo-map: Change the -a50 leafet variant to the satellite view,
+	  which is the same as for -a40 gmap.
+
+2019-10-17      Rick Richardson <rick.richardson@comcast.net>
+	* addletters: -e   Last character: rickrich == 8
+
+2019-10-07      Rick Richardson <rick.richardson@comcast.net>
+	* New program: pluscodes2ll - Google's plus codes to lat/lon
+	* New program: ll2pluscodes - Lat/lon to Google's plus codes
+
+2019-08-02      Rick Richardson <rick.richardson@comcast.net>
+	* New program: osmtile2ll - Open Street Map tiles to lat/lon
+	* New program: ll2osmtile - Lat/lon to Open Street Map tiles
+
+2019-07-03      Rick Richardson <rick.richardson@comcast.net>
+	* lethist: Implement umlauts
+
+2019-07-01      Rick Richardson <rick.richardson@comcast.net>
+	* Modify ok-nearest and ok-newest do to a change in software
+	* https://www.facebook.com/pg/Opencaching/posts/?ref=page_internal :
+	"the all new OpenCaching North America is up and running but there
+	are a number of issues still to be resolved. Users will need to go
+	through the password reset process before being able to log in to
+	the new site, but in most cases you will be able to simply reuse
+	your previous password."
+
+2019-06-30      Rick Richardson <rick.richardson@comcast.net>
+	* New program: geo-jigsaw-puzzle: Solve flash-gear.com Jigsaw Puzzles
+
+2019-06-27      Rick Richardson <rick.richardson@comcast.net>
+	* New program: gpx2mystery: Convert a gpx file into a geo-mystery file.
+
+2019-05-11      Rick Richardson <rick.richardson@comcast.net>
+	* geo-common-gc: GC.com changed Basic Member protocol
+
+2019-03-20      Rick Richardson <rick.richardson@comcast.net>
+	* geo-map: 03/19/20 Google removed the
+		    https://chart.googleapis.com/chart?chst=
+		so have to do some other way.
+
 2018-11-09      Rick Richardson <rick.richardson@comcast.net>
 	* anybase2anybase: Add -k and -K flags
 

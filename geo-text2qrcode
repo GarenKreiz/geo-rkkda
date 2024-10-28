@@ -177,7 +177,7 @@ image_convert() {
 
 check_uniprint() {
     if ! type uniprint >/dev/null 2>&1; then
-	error "No uniprint: Try: yum install yudit OR apt-get install yudit"
+	error "No uniprint: Try: dnf install yudit OR apt-get install yudit"
     fi
 }
 

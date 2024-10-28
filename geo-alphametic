@@ -46,7 +46,10 @@ EXAMPLE
 
 SEE ALSO
     http://www.math.ubc.ca/~israel/applet/metic/metic.html
+
     http://code.activestate.com/recipes/576615-alphametics-solver/
+
+    http://www.iread.it/cryptarithms.php
 """
 
 def solve(s, zero):

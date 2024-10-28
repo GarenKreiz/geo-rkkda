@@ -245,7 +245,6 @@ $2 == "lithuania" { zz=".lt"; zzz=".lyu" }
 $2 == "luxembourg" { zz=".lu"; zzz=".lux" }
 $2 == "macau" { zz=".mo"; zzz=".mac" }
 $2 == "macao" { zz=".mo"; zzz=".mac" }
-$2 == "macedonia" { zz=".mk"; zzz=".mkd" }
 $2 == "madagascar" { zz=".mg"; zzz=".mdg" }
 $2 == "malawi" { zz=".mw"; zzz=".mwi" }
 $2 == "malaysia" { zz=".my"; zzz=".mys" }
@@ -281,6 +280,7 @@ $2 == "nigeria" { zz=".ng"; zzz=".nga" }
 $2 == "niue" { zz=".nu"; zzz=".niu" }
 $2 == "norfolk\\ island" { zz=".nf"; zzz=".nfk" }
 $2 == "north\\ korea" { zz=".kp"; zzz=".prk" }
+$2 == "north\\ macedonia" { zz=".mk"; zzz=".mkd" }
 $2 == "northern\\ mariana\\ islands" { zz=".mp"; zzz=".mnp" }
 $2 == "norway" { zz=".no"; zzz=".nor" }
 $2 == "oman" { zz=".om"; zzz=".omn" }

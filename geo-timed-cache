@@ -36,6 +36,7 @@ EXAMPLE
 OPTIONS
     -b curl	Use curl as the browser. This is the default.
     -b lynx	Use lynx as the browser
+    -r		Remove the old password (.op)
     -w time	Wait time in floating point minutes before doing a 'snapshot'.
 		Default is 0 for using in a crontab. If it is greater than 0,
 		the program will never exit - use control-c to terminate it.
@@ -68,8 +69,9 @@ debug() {
 #
 WAIT=0
 BROWSER=curl
+REMOVE=0
 DEBUG=0
-while getopts "b:w:D:h?" opt
+while getopts "b:rw:D:h?" opt
 do
 	case $opt in
 	b)	case "$OPTARG" in
@@ -81,6 +83,7 @@ do
 	w)	WAIT="$OPTARG"
 		WAIT=`echo "$WAIT 60*p" | dc`
 		;;
+	r)	REMOVE=1;;
 	D)	DEBUG="$OPTARG";;
 	h|\?)	usage;;
 	esac
@@ -109,6 +112,10 @@ esac
 
 [ -d $DIR ] || mkdir -p $DIR
 cd $DIR
+
+if [ $REMOVE = 1 ]; then
+    rm -f .op
+fi
 
 do_one() {
     verbose=$1

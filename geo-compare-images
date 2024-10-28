@@ -5,22 +5,34 @@ PROGNAME="$0"
 usage() {
 	cat <<EOF
 NAME
-    `basename $PROGNAME` - Compare two images
+    `basename $PROGNAME` - Compare two or three images
 
 SYNOPSIS
     `basename $PROGNAME` [options] image1 image2
 
+    `basename $PROGNAME` [options] image1 image2 image3
+
 DESCRIPTION
-    Compare two images using difference and then divide. Display
-    with 'xv', 'display', 'eog', 'Preview' (Mac OS) or 'mspaint.exe' (cygwin).
+    For the first case, compare two images using "-compose difference"
+    and then "-compose divide". 
+
+    For the second case, compare two images using "-compose difference"
+    and then "-compose divide".  Then compare the result with image 3.
+
+    Display the results with 'xv', 'display', 'eog', 'Preview' (Mac OS) or
+    'mspaint.exe' (cygwin).
 
 OPTIONS
     -D lvl	Debug level
 
 EXAMPLE
-    Compare:
+    Do https://coord.info/GC89G6J :
 
-	$ geo-compare-images xxx.bmp yyy.png
+	$ geo-compare-images GC89G6J.jpeg GC89G6J.png
+
+    Do https://coord.info/GC93D38 :
+
+	$ geo-compare-images GC93D38-1.jpg GC93D38-2.jpg GC93D38-back.jpg
 
 SEE ALSO
     ImageMagick, xv
@@ -82,23 +94,48 @@ view() {
 #
 #	Main Program
 #
-if [ $# -lt 2 ]; then
+case $# in
+2)
+    # compare $1 $2 /tmp/compare1.png
+    # xv /tmp/compare1.png &
+    size=`identify -format '%wx%h' "$1"`
+    IMAGE1=/tmp/compare-image1.png
+    IMAGE2=/tmp/compare-image2.png
+    COMPARE1=/tmp/compare1.png
+    COMPARE2=/tmp/compare2.png
+    convert $1 -fuzz 2% -trim +repage -strip $IMAGE1
+    convert $2 -fuzz 2% -trim +repage -strip $IMAGE2
+
+    composite $IMAGE1 $IMAGE2 -resize $size -compose difference $COMPARE1
+    convert $COMPARE1 -auto-level $COMPARE1
+    view $COMPARE1 &
+
+    composite $IMAGE1 $IMAGE2 -resize $size -compose divide $COMPARE2
+    view $COMPARE2 &
+    ;;
+3)
+    size=`identify -format '%wx%h' "$1"`
+    IMAGE1=/tmp/compare-image1.png
+    IMAGE2=/tmp/compare-image2.png
+    IMAGE3=/tmp/compare-image3.png
+    COMPARE1=/tmp/compare1.png
+    COMPARE2=/tmp/compare2.png
+    COMPARE3=/tmp/compare3.png
+    COMPARE4=/tmp/compare4.png
+    convert $1 -fuzz 2% -trim +repage -strip $IMAGE1
+    convert $2 -fuzz 2% -trim +repage -strip $IMAGE2
+    convert $3 -fuzz 2% -trim +repage -strip $IMAGE3
+
+    composite $IMAGE1 $IMAGE2 -resize $size -compose difference $COMPARE1
+    composite $COMPARE1 $IMAGE3 -resize $size -compose difference $COMPARE3
+    convert $COMPARE3 -auto-level $COMPARE3
+    view $COMPARE3 &
+
+    composite $IMAGE1 $IMAGE2 -resize $size -compose divide $COMPARE2
+    composite $COMPARE2 $IMAGE3 -resize $size -compose divide $COMPARE4
+    view $COMPARE4 &
+    ;;
+*)
     usage
-fi
-
-# compare $1 $2 /tmp/compare1.png
-# xv /tmp/compare1.png &
-size=`identify -format '%wx%h' "$1"`
-IMAGE1=/tmp/compare-image1.png
-IMAGE2=/tmp/compare-image2.png
-COMPARE1=/tmp/compare1.png
-COMPARE2=/tmp/compare2.png
-convert $1 -fuzz 2% -trim +repage -strip $IMAGE1
-convert $2 -fuzz 2% -trim +repage -strip $IMAGE2
-
-composite $IMAGE1 $IMAGE2 -resize $size -compose difference $COMPARE1
-convert $COMPARE1 -auto-level $COMPARE1
-view $COMPARE1 &
-
-composite $IMAGE1 $IMAGE2 -resize $size -compose divide $COMPARE2
-view $COMPARE2 &
+    ;;
+esac

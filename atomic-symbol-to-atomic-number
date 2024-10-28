@@ -316,6 +316,7 @@ BEGIN {
     name[117] = "Tennessine"
     name[118] = "Oganesson"
 }
+/^$/ { next }
 {
     text = toupper(substr($1, 1, 1)) tolower(substr($1, 2))
 
@@ -327,6 +328,7 @@ BEGIN {
     # slow, but does the job, wt[*] was stolen from atomic-number-to-text!
     for (i in wt)
     {
+	if (text == "Uun") { printf "110 "; next }
 	if (text == "Uub") { printf "112 "; next }
 	if (text == "Uut") { printf "113 "; next }
 	if (text == "Uup") { printf "115 "; next }
@@ -350,7 +352,10 @@ BEGIN {
 	    next
 	}
     }
-    printf "<%d> ", text
+    if (text ~ /[a-zA-Z]/ )
+	printf "<%s> ", text
+    else
+	printf "<%d> ", text
 }
 END { printf "\n" }
 '

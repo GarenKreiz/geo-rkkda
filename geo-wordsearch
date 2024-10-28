@@ -21,7 +21,12 @@ DESCRIPTION
 OPTIONS
     -b		No backwards
     -d		No diagonals
+    -h		Do horizontal only
+    -v		Do vertical only
     -l		Lowercase words
+    -L french	Take words from file ~/lib/geo/french
+    -L german	Take words from file ~/lib/geo/ngerman
+    -L spanish	Take words from file ~/lib/geo/spanish
     -N		Append numerical words (NORTH, ONE, SIXTY, ...)
     -r		Rotate-13
     -u		Uppercase words
@@ -138,12 +143,18 @@ EXAMPLES
 	    R Y                           H C   X 
 	    P J                         C K X H   
 	    B V                 E F             C 
-	Horizontal:
-            THANKSGLENNORTHFORTYTWODEGREESTHIRTYFIVEPOINTONESEVENSEVENWESTEI
-            GHTYTWODEGREESFIFTYFOURPOINTONEFOURNINEYKRYHCXPJCKXHBVEFC
-	Vertical:
-            FSONOIRPBWUTNYJVEIOOGDRRETEYTEYEFNSHNTSITEEOFREANWTVOSVHIPFNOOHE
-            NESTGNUFECKRDIVETROHKSTEPENYTECXGHRONEEYIRYHLGTIWTEFFNKXC
+	Horizontal (normal):
+	    THANKSGLENNORTHFORTYTWODEGREESTHIRTYFIVEPOINTONESEVENSEVENWESTEI
+	    GHTYTWODEGREESFIFTYFOURPOINTONEFOURNINEYKRYHCXPJCKXHBVEFC
+	Horizontal (reverse):
+	    CFEVBHXKCJPXCHYRKYENINRUOFENOTNIOPRUOFYTFIFSEERGEDOWTYTHGIETSEWN
+	    EVESNEVESENOTNIOPEVIFYTRIHTSEERGEDOWTYTROFHTRONNELGSKNAHT
+	Vertical (normal):
+	    FSONOIRPBWUTNYJVEIOOGDRRETEYTEYEFNSHNTSITEEOFREANWTVOSVHIPFNOOHE
+	    NESTGNUFECKRDIVETROHKSTEPENYTECXGHRONEEYIRYHLGTIWTEFFNKXC
+	Vertical (reverse):
+	    CXKNFFETWITGLHYRIYEENORHGXCETYNEPETSKHORTEVIDRKCEFUNGTSENEHOONFP
+	    IHVSOVTWNAERFOEETISTNHSNFEYETYETERRDGOOIEVJYNTUWBPRIONOSF
 	Overlap:
             Horizontal:     EITSVESRAEYAEWENAE
             Vertical:       EEVAESREAIEYWTEANS
@@ -180,11 +191,64 @@ EXAMPLES
 	    1	SINGING
 	    1	STREAMERS
 
+    Process GC8CTF0.ws with DEBUG equal to one:
+
+	$ geo-wordsearch -D1 ~/proj/caches/GC8CTF0.ws
+	row  8, col  1 --> row  8, col  4       BLUE
+	row  2, col  2 --> row  2, col  6       RIDGE
+	row  7, col  1 --> row  7, col  5       CREEK
+	row  9, col  5 --> row  9, col  1       GULCH
+	row  1, col  4 --> row  1, col  8       POINT
+	row  4, col  1 --> row  4, col  5       HILLS
+	row  5, col  1 --> row  5, col  4       FLAT
+	row  3, col  1 --> row  3, col  6       VALLEY
+	row  4, col  3 --> row  7, col  3       LAKE
+	row  3, col  7 --> row  8, col  7       ISLAND
+	row  1, col  2 --> row  5, col  2       TRAIL
+	row  7, col  6 --> row  9, col  6       EPUP
+	row  7, col  8 --> row  3, col  8       BUTTE
+	row  3, col  7 --> row  1, col  7       INN
+	row  9, col  9 --> row  1, col  9       RESERVOIR
+	 . . .
+
+    Process GC8MDAQ.ws with only vertical and numbers selected:
+
+	$ geo-wordsearch -v -N ~/proj/caches/GC8MDAQ.ws
+	 . . .
+	Words Found:
+		    E                                   
+		    I                                   
+		    G                                   
+		    H                                   
+		    T                   O               
+					N         E     
+					E         V     
+						  I     
+		E                                 F     
+		E         E                             
+		R         V                             
+		H         I   P                         
+		T         F   O                         
+		H             I   E                     
+		T   O         N   E                     
+		R   N         T   R   N                 
+		O   E             H   E     T           
+		N                 T   T     E           
+	                                    N           
+	 . . .
+
 SEE ALSO
     http://www.newocr.com/
+
+    https://www.onlineocr.net/
+
     http://coord.info/GC38HJE
+
     http://coord.info/GC35J4T
+
     http://coord.info/GC2BBF0
+
+    http://coord.info/GC8WF27	geo-wordsearch -L french -w
 EOF
 
 	exit 1
@@ -213,6 +277,8 @@ UPPER=0
 LOWER=0
 NODIAG=0
 NOBACK=0
+HORIZ=0
+VERT=0
 HTML=0
 WORDS=
 SHAREWORDS=/usr/share/dict/words
@@ -221,12 +287,45 @@ if [ -s "$HOME/lib/geo/english.dic" ]; then
 else
     LOCALWORDS=/usr/lib/geo/english.dic
 fi
-while getopts "bdlNruwWHD:h?" opt
+while getopts "bdhvlL:NruwWHD:h?" opt
 do
 	case $opt in
 	b)	NOBACK=1;;
 	d)	NODIAG=1;;
+	h)	HORIZ=1;;
+	v)	VERT=1;;
 	l)	LOWER=1;;
+	L)
+		case "$OPTARG" in
+		french)
+			if [ -s "$HOME/lib/geo/french" ]; then
+			    LOCALWORDS=$HOME/lib/geo/french
+			elif [ -s "/usr/lib/geo/french" ]; then
+			    LOCALWORDS=/usr/lib/geo/french
+			else
+			    error "Can't find 'french'"
+			fi
+			;;
+		german)
+			if [ -s "$HOME/lib/geo/ngerman" ]; then
+			    LOCALWORDS=$HOME/lib/geo/ngerman
+			elif [ -s "/usr/lib/geo/ngerman" ]; then
+			    LOCALWORDS=/usr/lib/geo/ngerman
+			else
+			    error "Can't find 'ngerman'"
+			fi
+			;;
+		spanish)
+			if [ -s "$HOME/lib/geo/spanish" ]; then
+			    LOCALWORDS=$HOME/lib/geo/spanish
+			elif [ -s "/usr/lib/geo/spanish" ]; then
+			    LOCALWORDS=/usr/lib/geo/spanish
+			else
+			    error "Can't find 'spanish'"
+			fi
+			;;
+		esac
+		;;
 	r)	ROT13=1;;
 	u)	UPPER=1;;
 	N)	WORDS=N;;
@@ -279,6 +378,8 @@ awk -v "DEBUG=$DEBUG" \
     -v UPPER=$UPPER \
     -v NOBACK=$NOBACK \
     -v NODIAG=$NODIAG \
+    -v HORIZ=$HORIZ \
+    -v VERT=$VERT \
     -v HTML=$HTML \
     -v CMDLINE="`basename $PROGNAME` $CMDLINE" \
 '
@@ -325,49 +426,97 @@ function fill_or_blank(a, r,c,R,C, f,	x, y, tmp) {
 	}
     }
 }
-function printit(a, nr, nc, rot13, nospace, 	r, c, count) {
+function printit(a, nr, nc, rot13, nospace, rev,	r, c, count) {
     count = 0
     if (nospace) printf "\t"
-    for (r = 1; r <= nr; ++r)
+    if (rev)
     {
-	if (!nospace) printf "\t"
-	for (c = 1; c <= nc; ++c)
+	for (r = nr; r >= 1; --r)
 	{
-	    ch = a[c, r]
-	    if (rot13 && match(ch, "[a-zA-Z]") != 0)
-		ch = letter[ch]
-	    if (!nospace)
-		printf "%c ", ch
-	    else if (ch != " ")
+	    if (!nospace) printf "\t"
+	    for (c = nc; c >= 1; --c)
 	    {
-		printf "%c", ch
-		if (++count % 64 == 0) printf("\n\t")
+		ch = a[c, r]
+		if (rot13 && match(ch, "[a-zA-Z]") != 0)
+		    ch = letter[ch]
+		if (!nospace)
+		    printf "%c ", ch
+		else if (ch != " ")
+		{
+		    printf "%c", ch
+		    if (++count % 64 == 0) printf("\n\t")
+		}
 	    }
+	    if (!nospace) printf "\n"
 	}
-	if (!nospace) printf "\n"
+    }
+    else
+    {
+	for (r = 1; r <= nr; ++r)
+	{
+	    if (!nospace) printf "\t"
+	    for (c = 1; c <= nc; ++c)
+	    {
+		ch = a[c, r]
+		if (rot13 && match(ch, "[a-zA-Z]") != 0)
+		    ch = letter[ch]
+		if (!nospace)
+		    printf "%c ", ch
+		else if (ch != " ")
+		{
+		    printf "%c", ch
+		    if (++count % 64 == 0) printf("\n\t")
+		}
+	    }
+	    if (!nospace) printf "\n"
+	}
     }
     if (nospace) printf "\n"
 }
-function printvert(a, nr, nc, rot13, nospace,     r, c, count) {
+function printvert(a, nr, nc, rot13, nospace, rev,     r, c, count) {
     count = 0
     if (nospace) printf "\t"
-    for (c = 1; c <= nc; ++c)
+    if (rev)
     {
-        if (!nospace) printf "\t"
-	for (r = 1; r <= nr; ++r)
-        {
-            ch = a[c, r]
-            if (rot13 && match(ch, "[a-zA-Z]") != 0)
-                ch = letter[ch]
-            if (!nospace)
-                printf "%c ", ch
-            else if (ch != " ")
-            {
-                printf "%c", ch
-		if (++count % 64 == 0) printf("\n\t")
-            }
-        }
-        if (!nospace) printf "\n"
+	for (c = nc; c >= 1; --c)
+	{
+	    if (!nospace) printf "\t"
+	    for (r = nr; r >= 1; --r)
+	    {
+		ch = a[c, r]
+		if (rot13 && match(ch, "[a-zA-Z]") != 0)
+		    ch = letter[ch]
+		if (!nospace)
+		    printf "%c ", ch
+		else if (ch != " ")
+		{
+		    printf "%c", ch
+		    if (++count % 64 == 0) printf("\n\t")
+		}
+	    }
+	    if (!nospace) printf "\n"
+	}
+    }
+    else
+    {
+	for (c = 1; c <= nc; ++c)
+	{
+	    if (!nospace) printf "\t"
+	    for (r = 1; r <= nr; ++r)
+	    {
+		ch = a[c, r]
+		if (rot13 && match(ch, "[a-zA-Z]") != 0)
+		    ch = letter[ch]
+		if (!nospace)
+		    printf "%c ", ch
+		else if (ch != " ")
+		{
+		    printf "%c", ch
+		    if (++count % 64 == 0) printf("\n\t")
+		}
+	    }
+	    if (!nospace) printf "\n"
+	}
     }
     if (nospace) printf "\n"
 }
@@ -459,11 +608,25 @@ END{
 	    {	# Process rows...
 		for (a = 0; a < 9; ++a)
 		{
+		    if (a==4)
+			continue
+		    #  0  3  6
+		    #   \ | /
+		    #  1--*--7
+		    #   / | \
+		    #  2  5  8
+		    #
 		    if (NOBACK && \
 			(a==1 || a==3) )
 			continue
 		    if (NODIAG && \
 			(a==0 || a==2 || a==6 || a==8) )
+			continue
+		    if (VERT && \
+			(a==0 || a==2 || a==6 || a==8 || a==1 || a==7) )
+			continue
+		    if (HORIZ && \
+			(a==0 || a==2 || a==6 || a==8 || a==3 || a==5) )
 			continue
 		    if (t[I=i,J=j] != w[1])
 			break
@@ -478,9 +641,9 @@ END{
 			    counts[word]++
 			    count++
 			    if (DEBUG)
-				print words[word], \
-				    "row "j (B=", column ")i" --> row " \
-				    J B I
+				printf \
+				"row %2d, col %2d --> row %2d, col %2d\t%s\n", \
+				    j, i, J, I, words[word]
 			}
 		    }
 		}
@@ -489,26 +652,34 @@ END{
     }
 
     print "Original:"
-    printit(t, y, x, 0, 0)
+    printit(t, y, x, 0, 0, 0)
     print "Words Found:"
-    printit(ft, y, x, 0, 0)
+    printit(ft, y, x, 0, 0, 0)
     print "Words Left:"
-    printit(dt, y, x, 0, 0)
-    print "Horizontal:"
-    printit(dt, y, x, 0, 1)
-    print "Vertical:"
-    printvert(dt, y, x, 0, 1)
+    printit(dt, y, x, 0, 0, 0)
+    print "Horizontal (normal):"
+    printit(dt, y, x, 0, 1, 0)
+    print "Horizontal (reverse):"
+    printit(dt, y, x, 0, 1, 1)
+    print "Vertical (normal):"
+    printvert(dt, y, x, 0, 1, 0)
+    print "Vertical (reverse):"
+    printvert(dt, y, x, 0, 1, 1)
     print "Overlap:"
     printoverlap(y, x)
 
     if (ROT13)
     {
 	print "Words Left (rot13):"
-	printit(dt, y, x, 1, 0)
-	print "   Horizontal:"
-	printit(dt, y, x, 1, 1)
-	print "   Vertical:"
-	printvert(dt, y, x, 1, 1)
+	printit(dt, y, x, 1, 0, 0)
+	print "Horizontal (rot13, normal):"
+	printit(dt, y, x, 1, 1, 0)
+	print "Horizontal (rot13, reverse):"
+	printit(dt, y, x, 1, 1, 1)
+	print "Vertical (rot13, normal):"
+	printvert(dt, y, x, 1, 1, 0)
+	print "Vertical (rot13, reverse):"
+	printvert(dt, y, x, 1, 1, 1)
     }
 
     print "Words: ", count, "out of", wc
