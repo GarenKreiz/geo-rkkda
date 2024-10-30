@@ -46,6 +46,7 @@ SHELLS=	geo-nearest geo-code geo-count geo-usernum geo-waypoint \
 	geo-coords \
 	geo-project \
 	geo-additional \
+	geo-pictures \
 	rect2geomap \
 	geo-dist \
 	gpx2html \
@@ -207,6 +208,7 @@ FILES= \
 	geo-additional.sh \
 	geo-2gpsdrive.sh \
 	geo-2tangogps.sh \
+	geo-pictures.sh \
 	rect2geomap \
 	gpx2html \
 	geo-html2gpx \
@@ -531,6 +533,7 @@ geo-project: geo-common geo-awk-library Makefile
 geo-code: geo-common Makefile
 geo-zipcode: geo-common Makefile
 geo-waypoint: geo-common geo-common-gpsdrive Makefile
+geo-pictures: geo-common geo-common-gc Makefile
 geo-dist: geo-common Makefile
 gpx-photos: geo-common Makefile
 nc-nearest: geo-common geo-common-nc geo-common-gpsdrive Makefile
@@ -613,6 +616,7 @@ clean:
 	rm -f geo-usernum
 	rm -f geo-pocket-query-newest
 	rm -f geo-soon geo-additional
+	rm -f geo-pictures
 	rm -f nc-nearest nc-newest
 	rm -f oc-nearest oc-newest
 	rm -f ok-nearest ok-newest
@@ -759,7 +763,7 @@ test_dk:
 test_fi:
 	./geo-code -D1 "Mannerheimintie 10" "00100 Helsinki" fi
 test_fr:
-	./geo-code -D1 "116, avenue du Président Kennedy" "75016 Paris" fr
+	./geo-code -D1 "116, avenue du Prï¿½sident Kennedy" "75016 Paris" fr
 test_it:
 	./geo-code -D1 "Via Tevere No 44" "00198 Rome" it
 test_ca:

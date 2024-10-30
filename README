@@ -7,15 +7,18 @@ which you can use in a batch or cron mode to establish your normal caching
 routine, backup your caches and cache logs, etc.  Others are used to enter
 new waypoints, free geocoder, create custom maps of waypoints, etc.
 
-These tools work on Linux and CygWin on MS Windows and might also work on
-Mac OS X.  I have no plans to port them to native Windows, and to
-protect your karma I urge others to refrain from doing so.
+These tools work on Linux and CygWin or MSYS on MS Windows and might also work on
+Mac OS X.
 
-All of the tools that were written by me are released into the public
+All of the tools that were written by Rick Richardson were released into the public
 domain, with no copyright or license restrictions whatsoever.  Other
 tools, like gpx2html and geodetics.html, are copyright by their
 original author and may have license restrictions as indicated in the
 source code.
+
+Rick Richardson passed away but his great legacy remains!
+
+Warning: some tools make use of the rkkda.com site but it closed early 2021.
 
 Any of the tools will print a usage summary with "-?", e.g.
     $ geo-gid -?
@@ -52,6 +55,7 @@ Tools for accessing gc.com...
 
 	geo-count	Count caches found
 	geo-usernum	Determine gc.com user number (used by geo-count)
+	geo-pictures	Add pictures to logs
 
 (PMO)	geo-gid		Retrieve cache info by GCxxxx waypoint name
 (PMO)	geo-gpx		Retrieve GPX file by GCxxxx waypoint name
