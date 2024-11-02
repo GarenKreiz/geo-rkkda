@@ -11,7 +11,7 @@ These tools work on Linux and CygWin or MSYS on MS Windows and might also work o
 Mac OS X.
 
 All of the tools that were written by Rick Richardson were released into the public
-domain, with no copyright or license restrictions whatsoever.  Other
+domain, with no copyright or license restrictions.  Other
 tools, like gpx2html and geodetics.html, are copyright by their
 original author and may have license restrictions as indicated in the
 source code.
@@ -20,24 +20,11 @@ Rick Richardson passed away but his great legacy remains!
 
 Warning: some tools make use of the rkkda.com site but it closed early 2021.
 
+Documentation
+-------------
+
 Any of the tools will print a usage summary with "-?", e.g.
     $ geo-gid -?
-
-geo-*.tar.gz
-	Tarball of everything below and more.
-	    To install:
-	    1)	$ make
-
-	    2)	$ make install			# to install in $HOME/bin
-		OR
-		# PREFIX=/usr make install	# to install in /usr/bin
-
-	    3) Create a $HOME/.georc file with at least these lines in it:
-
-		PASSWORD="your-gc.com-password"
-		USERNAME="your-gc.com-username"
-		LAT=44.497250	# Your home latitude in decimal degrees
-		LON=-93.941033	# Your home longitude in decimal degrees
 
 Tools for accessing gc.com...
 	(PMO) : this program works for gc.com "Premium Member Only" subscribers
@@ -79,7 +66,7 @@ Tools for accessing gc.com...
 	geo-sdt         Replace Size, Difficulty, Terrain from a PQ file
 	geo-suffix	Replace name with name/TypeSizeDiffTerr/gcid/LatLon
 	geo-uniq	Unique the tabsep database
-			 
+
 Tools for accessing opencaching.com...
 	oc-nearest	List the nearest caches to a location
 	oc-newest	List the newest caches in a state
@@ -212,8 +199,44 @@ Nonograms
 	nono2jsolver	Convert .nono to jsolver format
 	pbnsolve-wrapper Wrapper for .non format nonograms
 
+Installation/Removal
+--------------------
+
+Install
+
+	Download and extract the archive https://github.com/GarenKreiz/geo-rkkda/archive/refs/heads/main.zip
+
+	In the newly created directory
+
+	    Compile
+		$ make
+
+	    Install
+		$ make install			# to install in $HOME/bin
+		  OR
+		$ su OR $ sudo sh
+		# PREFIX=/usr make install	# to install in /usr/bin
+		# make install-man
+
+	    3) Create a $HOME/.georc file with at least these lines in it:
+
+		PASSWORD="your-gc.com-password"
+		USERNAME="your-gc.com-username"
+		LAT=44.497250	# Your home latitude in decimal degrees
+		LON=-93.941033	# Your home longitude in decimal degrees
+
+Uninstall
+
+	If you don't like or don't use geo-*
+
+            $ make uninstall			# to uninstall in $HOME/bin
+        	OR
+            $ su	OR	$ sudo sh
+            # PREFIX=/usr make uninstall	# to uninstall in /usr/bin...
+			# make uninstall-man
+
 GPSBABEL
---------
+
     Use the latest gpsbabel (1.5.4+):
 
     $ git clone https://github.com/gpsbabel/gpsbabel.git
@@ -223,7 +246,6 @@ GPSBABEL
     # make install
 
 MAC OSX SUPPORT
----------------
 
 Do this FIRST:
 Download and install MacPorts:
@@ -258,7 +280,6 @@ language features is required.", then drop back and use:
     $ wget http://www.linklevel.net/distfiles/gpsbabel-1.4.4.tar.gz
 
 CYGWIN SUPPORT
---------------
 
 Install CygWin as per: http://www.cygwin.com.  For the easiest (but
 longer) install experience, just install everything.  If you choose
@@ -281,10 +302,9 @@ Download and install gpsbabel:
     $ make install
 
 FREEBSD SUPPORT
----------------
 
 Install with "pkg install":
-    coreutils (gives gtouch and gdate, and more) 
+    coreutils (gives gtouch and gdate, and more)
     gawk
     gmake
     gpsbabel
@@ -296,3 +316,15 @@ and:
     # ln -s /usr/local/bin/bash /bin/bash
 
 Then follow the Linux instructions but use "gmake" instead of "make".
+
+Questions and support
+---------------------
+
+	You can report bug or ask for support by creating issues on Github https://github.com/GarenKreiz/geo-rkkda/issues
+
+
+Source code
+-----------
+
+	The Github repository https://github.com/GarenKreiz/geo-rkkda was initialised with the lastest release by Rick Richardson. I, Garenkreiz, only tested and used a minimal subsets of the tools for www.geocaching.com and can't maintain the tools I don't use. Any help is thus welcome, feel free to propose patches or pull requests.
+
