@@ -128,7 +128,6 @@
 117	.lt	.lyu	lithuania
 8	.lu	.lux	luxembourg
 258	.mo	.mac	macao
-125	.mk	.mkd	macedonia
 119	.mg	.mdg	madagascar
 129	.mw	.mwi	malawi
 121	.my	.mys	malaysia
@@ -163,6 +162,7 @@
 149	.nu	.niu	niue
 260	.nf	.nfk	norfolk\ island
 146	.kp	.prk	north\ korea
+125	.mk	.mkd	north\ macedonia
 236	.mp	.mnp	northern\ mariana\ islands
 147	.no	.nor	norway
 150	.om	.omn	oman

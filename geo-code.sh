@@ -10,7 +10,7 @@
 #
 #	Use at your own risk.  Not suitable for any purpose.  Not legal tender.
 #
-#	$Id: geo-code.sh,v 1.30 2019/02/25 19:59:40 rick Exp $
+#	$Id: geo-code.sh,v 1.31 2019/05/27 16:01:39 rick Exp $
 #
 
 PROGNAME="$0"
@@ -89,6 +89,9 @@ EXAMPLES
 
 	    \$ geo-code "Schlossplatz 10" "76131 Karlsruhe" de
 	    Schlossplatz10 49.01072 08.40557 new
+
+	    \$ geo-code "10 Downing St" "London SW1A 2AA" uk
+	    10DowningSt 51.50354 -0.12768 new
 
 SEE ALSO
 	geo-nearest, geo-waypoint, geo-pg,

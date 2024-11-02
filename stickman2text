@@ -51,6 +51,7 @@ debug() {
 #       Process the options
 #
 DEBUG=0
+TMP=/tmp/stickman2text$$
 #unset OPTIND
 while getopts "D:h?" opt
 do
@@ -61,19 +62,32 @@ do
 done
 shift `expr $OPTIND - 1`
 
+doit() {
+    addletters -r -a \
+	$(echo "$*" | sed -e 's/.*o=//' -e 's/s/ 32 /' | tr '-' ' ') > $TMP
+    case `cat $TMP` in
+    *[a-zA-Z][a-zA-Z]*)
+	cat $TMP
+	;;
+    *)
+	sed \
+	    -e 's/\([NSWE]\) /\1/g' \
+	    -e 's/ /./' \
+	    -e 's/ \([^ ]*\)$/.\1/' \
+	    -e 's/\([EW]\)0/\1/' \
+	    < $TMP \
+	| tr -d '\260\302'"'"
+	;;
+    esac
+}
+
 #
 #	Main Program
 #
 if [ $# = 0 ]; then
-    addletters -r -a \
-	$(sed -e 's/.*o=//' -e 's/s/ 32 /' | tr '-' ' ')
+    while read a; do
+	doit "$a"
+    done
 else
-    addletters -r -a \
-	$(echo "$*" | sed -e 's/.*o=//' -e 's/s/ 32 /' | tr '-' ' ')
-fi \
-    | sed \
-	-e 's/\([NSWE]\) /\1/g' \
-	-e 's/ /./' \
-	-e 's/ \([^ ]*\)$/.\1/' \
-	-e 's/\([EW]\)0/\1/' \
-    | tr -d '\260'"'"
+    doit "$*"
+fi

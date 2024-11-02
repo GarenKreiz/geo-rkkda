@@ -16,6 +16,7 @@ DESCRIPTION
 OPTIONS
     -0		Update, but no geo-nearest/geo-newest
     -a		All.  Do geo-nearest AND geo-newest.
+    -A		geo-nearest on all of the caches in MN.
     -f		Find 
     -F		Force
     -i		Incremental (200)
@@ -84,7 +85,7 @@ REMOTE=rick
 MASTER=dual
 MASTER=quad
 STATE=
-while getopts "0afFiInpqD:h?" opt
+while getopts "0aAfFiInpqD:h?" opt
 do
 	case $opt in
 	0)	NOGEO=1;;
@@ -93,6 +94,7 @@ do
 	i)	INCR=200;;
 	I)	INCR=2000;;
 	a)	ALL=1;;
+	A)	ALL=2;;
 	n)	NEWEST=1;;
 	p)	PUZZLES=1;;
 	q)	geo-newest -s -f -n60 -S; exit;;
@@ -143,6 +145,10 @@ EXCLUDE=
 if [ "$ALL" = 1 ]; then
     NUM=1600
     GEO=geo-newest
+elif [ "$ALL" = 2 ]; then
+    NUM=99999
+    GEO=geo-newest
+    ALL=0
 elif [ "$NEWEST" = 1 ]; then
     GEO=geo-newest
     NUM=7500
@@ -158,7 +164,7 @@ fi
 OC=oc-nearest
 OCNUM=60
 OK=ok-nearest
-OKNUM=60
+OKNUM=200
 
 #
 #	Main Program
@@ -199,7 +205,7 @@ fi
     > $TMP2
 
     if [ $NOGEO = 0 ]; then
-	echo "Fetching Rick's waypoints at $NAME $LATLON..."
+	echo "Fetching $NUM Rick's waypoints at $NAME $LATLON..."
 
 	case `uname -n` in
 	*tosh*)	get=1;;
@@ -346,7 +352,7 @@ echo "Converting waypoints to Geko at $NAME $LATLON..."
 	TOMTOM=/run/media/rick/INTERNAL
 	if mount | grep -q $TOMTOM; then
 	    if [ -d /mnt/tomtom/Garmin/poi ]; then
-		echo "Copying to nuvi 200..."
+		echo "Copying to Garmin nuvi 200 ..."
 		gpsbabel -i tabsep -f $HOME/Caches/999.ts \
 		    -o gpx -F $HOME/Caches/tmp.gpx
 		    gpsbabel -s -i gpx -f $HOME/Caches/tmp.gpx \
@@ -367,7 +373,7 @@ echo "Converting waypoints to Geko at $NAME $LATLON..."
 		    -o garmin_gpi,category="MN",descr,notes,position \
 		    -F /mnt/tomtom/Garmin/poi/mn.gpi
 	    else
-		echo "Copying to tomtom..."
+		echo "Copying to TomTom One 130 ..."
 		cat $HOME/Caches/temp-caches.ts >> $HOME/Caches/999.ts
 		# Unfound
 		geo-suffix < $HOME/Caches/999.ts |

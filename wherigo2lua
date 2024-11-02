@@ -91,6 +91,7 @@ debug() {
 #
 DIR=~/Wherigo
 UNLUAC=unluac_2015_06_13.jar
+UNLUAC=unluac_2020_05_28.jar
 DEBUG=0
 STDOUT=
 while getopts "d:D:h?" opt
@@ -124,6 +125,8 @@ fi
 rm -f $DIR/media_*.*
 if which python.exe 2>/dev/null; then
     python $(cygpath -w $DIR/gwcd/gwcd.py) --all $1 >&2
+elif which python3 2>/dev/null; then
+    python3 $DIR/gwcd/gwcd.py --all $1 >&2
 else
     python $DIR/gwcd/gwcd.py --all $1 >&2
 fi

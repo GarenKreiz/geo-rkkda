@@ -1,0 +1,171 @@
+#!/bin/sh
+
+PROGNAME="$0"
+
+usage() {
+	cat <<EOF
+NAME
+    `basename $PROGNAME` - Logic box/grid/grille solver
+
+SYNOPSIS
+    `basename $PROGNAME` [options] initial-value count
+
+DESCRIPTION
+    Logic box/grid/grille solver.  Take an initial value which is nine or
+    ten digits and produce "count" new values.
+
+OPTIONS
+    -D lvl	Debug level
+
+EXAMPLES
+    Try 9 digits:
+
+    https://www.geocaching.com/geocache/GC5CWMH_the-logic-box
+
+    The columns are numbered 1, 2, ... 9.  The "1" goes in column 9,
+    the "9" goes in column 7, the "7" goes in column 3, and so on.
+
+	$ geo-logic-box 197346258 12
+	197346258
+	867324951
+	537298614
+	675148392
+	598172643
+	874632195
+	236794851
+	512983647
+	518673492
+	597328614
+	637148925
+	796125348
+	615329847
+
+    Try 10 digits:
+
+    https://www.geocaching.com/geocache/GC8GZ4B_a-logical-progression
+
+    The columns are numbered 0, 1, ... 9.  The "5" goes in column 7,
+    the "7" goes in column 1, the "1" goes in column 4, and so on.
+
+	$ geo-logic-box 5714893620 10
+	5714893620
+	2769103548
+	1980537246
+	8675204391
+	2954078613
+	4631598072
+	8376214095
+	4268197350
+	5847032961
+	7630819452
+	3856947201
+
+SEE ALSO
+    https://www.geocaching.com/geocache/GC2MXG3_logique
+
+    https://www.geocaching.com/geocache/GC3KX7F_logical-grid
+
+    https://www.geocaching.com/geocache/GC8GZ4B_a-logical-progression
+
+    https://www.geocaching.com/geocache/GC69775_voilier-8-grille-logique
+EOF
+
+	exit 1
+}
+
+#
+#       Report an error and exit
+#
+error() {
+	echo "`basename $PROGNAME`: $1" >&2
+	exit 1
+}
+
+debug() {
+	if [ $DEBUG -ge $1 ]; then
+	    echo "`basename $PROGNAME`: $2" >&2
+	fi
+}
+
+#
+#       Process the options
+#
+DEBUG=0
+#unset OPTIND
+while getopts "D:h?" opt
+do
+	case $opt in
+	D)	DEBUG="$OPTARG";;
+	h|\?)	usage;;
+	esac
+done
+shift `expr $OPTIND - 1`
+
+#
+#	Main Program
+#
+if [ $# != 2 ]; then
+    usage
+fi
+# https://coord.info/GC5CWMH
+# https://coord.info/GC3KX7F
+# https://coord.info/GC2MXG3
+# https://coord.info/GC8GZ4B
+# https://coord.info/GC8MZ6F
+#
+# "the 1 goes in column 9", "the 9 goes in column 7",
+# "the 7 goes in column 3", and so on
+#
+# Use grille-logique.sh for http://coord.info/GC69775
+# 
+awk -v logic=$1 -v count=$2 '
+function x2pos(x,	i) {
+    for (i = 1; i <= 9; ++i)
+	if (x == a[i])
+	    return a[i%9+1]
+    print "error"
+    exit
+}
+function doit() {
+    for (i = 1; i <= 9; ++i) { pos = x2pos(i); b[pos] = i }
+    for (i = 1; i <= 9; ++i) printf "%d", a[i]=b[i]; printf "\n"
+}
+function x2pos10(x,	i) {
+    for (i = 0; i < 10; ++i)
+    {
+	# print x, a[i]
+	if (x == a[i])
+	{
+	    return a[(i+1)%10]
+	}
+    }
+    print "error", x
+    exit
+}
+function doit10() {
+    for (i = 0; i < 10; ++i) { pos = x2pos10(i); b[pos] = i }
+    for (i = 0; i < 10; ++i) printf "%d", a[i%10]=b[i%10]; printf "\n"
+}
+BEGIN {
+    
+    len = length(logic)
+    if (len == 9)
+    {
+	for (i = 1; i <= len; ++i) a[i] = substr(logic, i, 1)
+	for (i = 1; i <= 9; ++i) printf "%d", a[i]; printf "\n"
+	for (j = 1; j <= count; ++j)
+	    doit()
+    }
+    else if (len == 10)
+    {
+	for (i = 1; i <= len; ++i) a[i-1] = substr(logic, i, 1)
+	for (i = 0; i <= 9; ++i) printf "%d", a[i]; printf "\n"
+	for (j = 1; j <= count; ++j)
+	    doit10()
+    }
+    else
+    {
+	print "Error: only 9 or 10 characters for the initial-value"
+	exit
+    }
+}'

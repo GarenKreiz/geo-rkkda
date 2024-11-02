@@ -1,0 +1,90 @@
+##############################################################################
+# begin #include "geo-awk-library"
+##############################################################################
+    function abs(x)     { return (x>=0) ? x : -x }
+    function asin(x)    { return atan2(x,(1.-x^2)^0.5) }
+    function acos(x)    { return atan2((1.-x^2)^0.5,x) }
+    function tan(x)     { return sin(x)/cos(x) }
+    function atan(x)    { return atan2(x, 1.0) }
+    function pow(a, b)  { return a ^ b }
+    # Convert BEAR to degrees
+    function bear2degrees(BEAR) {
+        if (BEAR ~ /mil/)
+            { gsub("mil", "", BEAR); BEAR /= 17.777777777778 }
+        else if (BEAR ~ /grad/)
+            { gsub("grad", "", BEAR); BEAR /=  1.1111111111111 }
+        else if (BEAR ~ /rad/)
+            { gsub("rad", "", BEAR); BEAR *= 57.295779513 }
+        else if (BEAR ~ /furman/)
+            { gsub("furman", "", BEAR); BEAR *= 360/65536 }
+        else if (BEAR ~ /:/)
+            { hh = BEAR; mm = BEAR; gsub(":.*", "", hh); gsub(".*:", "", mm)
+              BEAR = 360 * (hh*60+mm) / 720 }
+	else if (BEAR == "n" || BEAR == "N") BEAR = 0
+	else if (BEAR == "nne" || BEAR == "NNE") BEAR = 22.5
+	else if (BEAR == "ne" || BEAR == "NE") BEAR = 45
+	else if (BEAR == "ene" || BEAR == "ENE") BEAR = 67.5
+	else if (BEAR == "e" || BEAR == "E") BEAR = 90
+	else if (BEAR == "ese" || BEAR == "ESE") BEAR = 112.5
+	else if (BEAR == "se" || BEAR == "SE") BEAR = 135
+	else if (BEAR == "sse" || BEAR == "SSE") BEAR = 157.5
+	else if (BEAR == "s" || BEAR == "S") BEAR = 180
+	else if (BEAR == "ssw" || BEAR == "SSW") BEAR = 202.5
+	else if (BEAR == "sw" || BEAR == "SW") BEAR = 225
+	else if (BEAR == "wsw" || BEAR == "WSW") BEAR = 247.5
+	else if (BEAR == "w" || BEAR == "W") BEAR = 270
+	else if (BEAR == "wnw" || BEAR == "WNW") BEAR = 292.5
+	else if (BEAR == "nw" || BEAR == "NW") BEAR = 315
+	else if (BEAR == "nnw" || BEAR == "NNW") BEAR = 337.5
+        if (BEAR < 0) (BEAR = -BEAR + 180) % 360
+	return (BEAR)
+    }
+    # Convert DIST to meters
+    function dist2meters(DIST,	s) {
+        if (DIST ~ /km/)
+            { gsub("km", "", DIST); s = DIST * 1000.0 }
+        else if (DIST ~ /au/)
+            { gsub("au", "", DIST); s = DIST * 149597870700 }
+        else if (DIST ~ /mil/)
+            { gsub("mil", "", DIST); s = DIST / 39370.078740158 }
+        else if (DIST ~ /engchain/)
+            { gsub("engchain", "", DIST); s = DIST * 100.0 * 0.3048 }
+        else if (DIST ~ /chain/)
+            { gsub("chain", "", DIST); s = DIST * 66.0 * 0.3048 }
+        else if (DIST ~ /fathom/)
+            { gsub("fathom", "", DIST); s = DIST * 6.0 * 0.3048 }
+        else if (DIST ~ /rod/)
+            { gsub("rod", "", DIST); s = DIST * 16.5 * 0.3048 }
+        else if (DIST ~ /furlong/)
+            { gsub("furlong", "", DIST); s = DIST * 40 * 16.5 * 0.3048 }
+        else if (DIST ~ /hand/)
+            { gsub("hand", "", DIST); s = DIST * (5.0/12.0) * 0.3048 }
+        else if (DIST ~ /link/)
+            { gsub("link", "", DIST); s = DIST * (7.92/12.0) * 0.3048 }
+        else if (DIST ~ /pace/)
+            { gsub("pace", "", DIST); s = DIST * (30.0/12.0) * 0.3048 }
+        else if (DIST ~ /fizzy/)
+            { gsub("fizzy", "", DIST); s = DIST * 3.14159 * 1000.0 }
+        else if (DIST ~ /in/)
+            { gsub("in", "", DIST); s = DIST * (1.0/12.0) * 0.3048 }
+        else if (DIST ~ /smoot/)
+            { gsub("in", "", DIST); s = DIST * (67.0/12.0) * 0.3048 }
+        else if (DIST ~ /verst/)
+            { gsub("verst", "", DIST); s = DIST * 3500 * 0.3048 }
+        else if (DIST ~ /ft/)
+            { gsub("ft", "", DIST); s = DIST * 0.3048 }
+        else if (DIST ~ /yd/)
+            { gsub("yd", "", DIST); s = DIST * 3 * 0.3048 }
+        else if (DIST ~ /nmi/)
+            { gsub("nmi", "", DIST); s = DIST * 1852 }
+        else if (DIST ~ /mi/)
+            { gsub("mi", "", DIST); s = DIST * 1609.344 }
+        else if (DIST ~ /m/)
+            { gsub("m", "", DIST); s = DIST * 1.0 }
+        else
+            { s = DIST * 1609.344 }
+	return s
+    }
+##############################################################################
+# end #include "geo-awk-library"
+##############################################################################

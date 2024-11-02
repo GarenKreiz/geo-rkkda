@@ -37,6 +37,23 @@ EXAMPLE
 	N42.00.401 W092.54.257  # Sub .054, Add .213
 	N42.00.509 W092.53.831  # Add .054, Sub .213
 	N42.00.401 W092.53.831  # Sub .054, Sub .213
+
+    Add or subtract -0.012684/-0.001192 to degree decimal:
+
+	$ ./geo-addsub n41.993316 W92.548833 -0.012684 -0.001192
+	N41.58.838 W92.33.002   # Add -0.012684, Add -0.001192
+	N42.00.360 W92.33.002   # Sub -0.012684, Add -0.001192
+	N41.58.838 W92.32.858   # Add -0.012684, Sub -0.001192
+	N42.00.360 W92.32.858   # Sub -0.012684, Sub -0.001192
+
+    Add or subtract the above, but print it out in degree decimal:
+
+	$ geo-addsub -odegdec n41.993316 W92.548833 -0.012684 -0.001192
+	41.980632 -92.550025   # Add -0.012684, Add -0.001192
+	42.006000 -92.550025   # Sub -0.012684, Add -0.001192
+	41.980632 -92.547641   # Add -0.012684, Sub -0.001192
+	42.006000 -92.547641   # Sub -0.012684, Sub -0.001192
+
 EOF
 
 	exit 1
@@ -88,13 +105,27 @@ case "$#" in
 	esac
         ;;
 3|4)
-	LATD=`echo "$1" | sed -e 's/\..*//'`
-	LATM=`echo "$1" | sed -e 's/[nNsS][0-9]*\.//'`
-	LOND=`echo "$2" | sed -e 's/\..*//'`
-	LONM=`echo "$2" | sed -e 's/[wWeE][0-9]*\.//'`
+	case "$1" in
+	*.*.*)
+	    LATD=`echo "$1" | sed -e 's/\..*//'`
+	    LATM=`echo "$1" | sed -e 's/[nNsS][0-9]*\.//'`
+	    LOND=`echo "$2" | sed -e 's/\..*//'`
+	    LONM=`echo "$2" | sed -e 's/[wWeE][0-9]*\.//'`
+	    ;;
+	*.*)
+	    LATD=`echo "$1" | sed -e "s/[sS]/-/" -e "s/[nN]//" `
+	    LOND=`echo "$2" | sed -e "s/[wW]/-/" -e "s/[eE]//" `
+	    # echo $LATD $LOND
+	    LATM=
+	    LONM=
+	    ;;
+	*)
+	    error "Don't know this format!"
+	    ;;
+	esac
 	case "$#" in
-        3)	NSADDSUB=$3; EWADDSUB=$3; shift 3;;
-        4)	NSADDSUB=$3; EWADDSUB=$4; shift 4;;
+	3)	NSADDSUB=$3; EWADDSUB=$3; shift 3;;
+	4)	NSADDSUB=$3; EWADDSUB=$4; shift 4;;
 	esac
 	;;
 *)
@@ -102,28 +133,55 @@ case "$#" in
 	;;
 esac
 
-#echo $LATD $LATM $LOND $LONM $ADDSUB
-lata=`echo $LATM+$NSADDSUB | bc | sed -e 's/^\./0./' -e 's/^[0-9]\./0&/' `
-lats=`echo $LATM-$NSADDSUB | bc | sed -e 's/^\./0./' -e 's/^[0-9]\./0&/' `
-lona=`echo $LONM+$EWADDSUB | bc | sed -e 's/^\./0./' -e 's/^[0-9]\./0&/' `
-lons=`echo $LONM-$EWADDSUB | bc | sed -e 's/^\./0./' -e 's/^[0-9]\./0&/' `
-if [ "$FMT" = mindec ]; then
-    echo $LATD $lata $LOND $lona "	# Add $NSADDSUB, Add $EWADDSUB"
-    echo $LATD $lats $LOND $lona "	# Sub $NSADDSUB, Add $EWADDSUB"
-    echo $LATD $lata $LOND $lons "	# Add $NSADDSUB, Sub $EWADDSUB"
-    echo $LATD $lats $LOND $lons "	# Sub $NSADDSUB, Sub $EWADDSUB"
-elif [ "$FMT" = degdec ]; then
-    echo `geo-coords -l $LATD.$lata $LOND.$lona` \
-	 `geo-coords -L $LATD.$lata $LOND.$lona` "	# Ad $NSADDSUBd, Add $EWADDSUB"
-    echo `geo-coords -l $LATD.$lats $LOND.$lona` \
-	 `geo-coords -L $LATD.$lats $LOND.$lona` "	# Sub $NSADDSUB, Add $EWADDSUB"
-    echo `geo-coords -l $LATD.$lata $LOND.$lons` \
-	 `geo-coords -L $LATD.$lata $LOND.$lons` "	# Add $NSADDSUB, Sub $EWADDSUB"
-    echo `geo-coords -l $LATD.$lats $LOND.$lons` \
-	 `geo-coords -L $LATD.$lats $LOND.$lons` "	# Sub $NSADDSUB, Sub $EWADDSUB"
+if [ "$LATM" = "" -a "$LONM" = "" ]; then
+    lata=`echo "$LATD + $NSADDSUB" | bc `
+    lats=`echo "$LATD - $NSADDSUB" | bc `
+    lona=`echo "$LOND + $EWADDSUB" | bc `
+    lons=`echo "$LOND - $EWADDSUB" | bc `
+
+    # echo $lata $lats $lona $lons
+    if [ "$FMT" = mindec ]; then
+	error "can't do mindec yet!"
+    elif [ "$FMT" = degdec ]; then
+	echo $lata $lona	"  # Add $NSADDSUB, Add $EWADDSUB"
+	echo $lats $lona	"  # Sub $NSADDSUB, Add $EWADDSUB"
+	echo $lata $lons	"  # Add $NSADDSUB, Sub $EWADDSUB"
+	echo $lats $lons	"  # Sub $NSADDSUB, Sub $EWADDSUB"
+    else
+	echo `geo-coords -m -l $lata $lona` \
+	     `geo-coords -m -L $lata $lona` "	# Add $NSADDSUB, Add $EWADDSUB"
+	echo `geo-coords -m -l $lats $lona` \
+	     `geo-coords -m -L $lats $lona` "	# Sub $NSADDSUB, Add $EWADDSUB"
+	echo `geo-coords -m -l $lata $lons` \
+	     `geo-coords -m -L $lata $lons` "	# Add $NSADDSUB, Sub $EWADDSUB"
+	echo `geo-coords -m -l $lats $lons` \
+	     `geo-coords -m -L $lats $lons` "	# Sub $NSADDSUB, Sub $EWADDSUB"
+    fi
 else
-    echo $LATD.$lata $LOND.$lona "	# Add $NSADDSUB, Add $EWADDSUB"
-    echo $LATD.$lats $LOND.$lona "	# Sub $NSADDSUB, Add $EWADDSUB"
-    echo $LATD.$lata $LOND.$lons "	# Add $NSADDSUB, Sub $EWADDSUB"
-    echo $LATD.$lats $LOND.$lons "	# Sub $NSADDSUB, Sub $EWADDSUB"
+    #echo $LATD $LATM $LOND $LONM $ADDSUB
+    lata=`echo $LATM+$NSADDSUB | bc | sed -e 's/^\./0./' -e 's/^[0-9]\./0&/' `
+    lats=`echo $LATM-$NSADDSUB | bc | sed -e 's/^\./0./' -e 's/^[0-9]\./0&/' `
+    lona=`echo $LONM+$EWADDSUB | bc | sed -e 's/^\./0./' -e 's/^[0-9]\./0&/' `
+    lons=`echo $LONM-$EWADDSUB | bc | sed -e 's/^\./0./' -e 's/^[0-9]\./0&/' `
+
+    if [ "$FMT" = mindec ]; then
+	echo $LATD $lata $LOND $lona "	# Add $NSADDSUB, Add $EWADDSUB"
+	echo $LATD $lats $LOND $lona "	# Sub $NSADDSUB, Add $EWADDSUB"
+	echo $LATD $lata $LOND $lons "	# Add $NSADDSUB, Sub $EWADDSUB"
+	echo $LATD $lats $LOND $lons "	# Sub $NSADDSUB, Sub $EWADDSUB"
+    elif [ "$FMT" = degdec ]; then
+	echo `geo-coords -l $LATD.$lata $LOND.$lona` \
+	     `geo-coords -L $LATD.$lata $LOND.$lona` "	# Add $NSADDSUB, Add $EWADDSUB"
+	echo `geo-coords -l $LATD.$lats $LOND.$lona` \
+	     `geo-coords -L $LATD.$lats $LOND.$lona` "	# Sub $NSADDSUB, Add $EWADDSUB"
+	echo `geo-coords -l $LATD.$lata $LOND.$lons` \
+	     `geo-coords -L $LATD.$lata $LOND.$lons` "	# Add $NSADDSUB, Sub $EWADDSUB"
+	echo `geo-coords -l $LATD.$lats $LOND.$lons` \
+	     `geo-coords -L $LATD.$lats $LOND.$lons` "	# Sub $NSADDSUB, Sub $EWADDSUB"
+    else
+	echo $LATD.$lata $LOND.$lona "	# Add $NSADDSUB, Add $EWADDSUB"
+	echo $LATD.$lats $LOND.$lona "	# Sub $NSADDSUB, Add $EWADDSUB"
+	echo $LATD.$lata $LOND.$lons "	# Add $NSADDSUB, Sub $EWADDSUB"
+	echo $LATD.$lats $LOND.$lons "	# Sub $NSADDSUB, Sub $EWADDSUB"
+    fi
 fi

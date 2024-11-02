@@ -12,7 +12,8 @@
 int	Debug = 0;
 long long	Total = 0;
 int	Reverse = 0;
-int	SingleChar = 0;
+int	FirstChar = 0;
+int	LastChar = 0;
 int	Length = 0;
 int	ConsVowels = 0;
 int	SometimesY = 0;
@@ -141,9 +142,10 @@ usage(void)
 "	-N		Shift the numbers: !==1, @==2, #==3, ... )==0\n"
 "	-p		When -r, val = val / position\n"
 "	-P		Use phone key value of each letter (instead of 1-26)\n"
-"	-r		Reverse: e.g. addletters 18 05 22 05 18 19 05\n"
+"	-r		Reverse: e.g. addletters -r 18 05 22 05 18 19 05\n"
 "	-R		Digital Root of letter (e.g. 12=3)\n"
-"	-s		Single char: rickrich == 18\n"
+"	-s		First character: rickrich == 18\n"
+"	-e		Last character: rickrich == 8\n"
 "	-G		German Scrabble weights, add *<n> bonus; i.e. start*2\n"
 "	-S		Scrabble weights, add *<n> bonus; i.e. start*2\n"
 "	-T		Scrabble tiles\n"
@@ -159,7 +161,7 @@ usage(void)
 "		oldphone	Use old phone keys, q=1 z=0\n"
 "		qwerty	Keyboard qaz=1, wsx=2, ... p=0\n"
 "		aeiouy	Output length of Consonants/Vowels with Y as a vowel\n"
-"	-u		Swedish umlauts åäö instead of german umlauts äöüß\n"
+"	-u		Swedish umlauts åäöÅÄÖ instead of german umlauts äöüß\n"
 "	-w		Print single words\n"
 "	-W		Words With Friends points\n"
 "	-x		Print in hex, not decimal\n"
@@ -179,8 +181,18 @@ usage(void)
 "\n"
 "	Add German umlauts:\n"
 "\n"
-"	    $ addletters -n ä ö ü ß\n"
-"	    27 28 29 30 = 114\n"
+"	    $ addletters -n ä ö ü Ä Ö Ü ß\n"
+"	    27 28 29 27 28 29 30 = 198\n"
+"\n"
+"	Add Swedish umlauts:\n"
+"\n"
+"	    $ addletters -n -u å ä ö Å Ä Ö\n"
+"	    27 28 29 27 28 29 = 168\n"
+"\n"
+"	Decode an atbash cipher:\n"
+"\n"
+"	    $ addletters -r `addletters -n -z Wvogz Vxsl`\n"
+"	    DELTAECHO<=><73>\n"
 "\n"
 "SEE ALSO\n"
 "       lethist(1)\n"
@@ -247,7 +259,7 @@ main(int argc, char *argv[])
     makevals(ValsAZ);
 
     while ( (c = getopt(argc, argv,
-			    "abB:dlLxmM:nNpPrRsSGt:Tuv:wWz0D:?h")) != EOF)
+			    "abB:delLxmM:nNpPrRsSGt:Tuv:wWz0D:?h")) != EOF)
 	    switch (c)
 	    {
 	    case 'a':
@@ -297,7 +309,10 @@ main(int argc, char *argv[])
 		    numfmt = "%lld";
 		    break;
 	    case 's':
-		    SingleChar = 1;
+		    FirstChar = 1;
+		    break;
+	    case 'e':
+		    LastChar = 1;
 		    break;
 	    case 'S':
 		    scrabble = 1;
@@ -441,6 +456,12 @@ main(int argc, char *argv[])
 	    int val, valbase;
 	    val = atoi(argv[i]) - Aequals1;
 	    valbase = (int) strtol(argv[i], NULL, base) - Aequals1;
+	    if (modulus)
+	    {
+		while (val < 0)
+		    val += modulus;
+		val %= modulus;
+	    }
 	    if (position)
 	    {
 		val = val / (i+1);
@@ -449,9 +470,14 @@ main(int argc, char *argv[])
 	    else if (ascii)
 	    {
 		val = (int) strtol(argv[i], NULL, base);
-		if (val == 176)
-		    // Degrees...
-		    printf("%c%c", 0xC2, 0xB0);
+		if (unicode == 1)
+		{
+		    // e.g. degrees °
+		    printf("%c%c", 0xC2, val);
+		    unicode = 0;
+		}
+		else if (val == 0xC2)
+		    unicode = 1;
 		else
 		    printf("%c", val);
 	    }
@@ -522,8 +548,10 @@ main(int argc, char *argv[])
 	    {
 		int val;
 
-		if (p != (unsigned char *) argv[i] && SingleChar)
+		if (p != (unsigned char *) argv[i] && FirstChar)
 		    break;
+		if (LastChar && p[1])
+		    continue;
 		c = *p;
 		if (ascii)
 		    val = c;
@@ -533,21 +561,25 @@ main(int argc, char *argv[])
 		    unicode = 0;
 		    switch (c)
 		    {
+		    case 0x84:	
 		    case 0xA4:	
 			if (swedish)
 			    val = 28 + Aequals1 - 1;
 			else
 			    val = 27 + Aequals1 - 1;
 			break;
+		    case 0x85:
 		    case 0xA5:
 			val = 27 + Aequals1 - 1;
 			break;
+		    case 0x96:
 		    case 0xB6:
 			if (swedish)
 			    val = 29 + Aequals1 - 1;
 			else
 			    val = 28 + Aequals1 - 1;
 			break;
+		    case 0x9C:
 		    case 0xBC:
 			val = 29 + Aequals1 - 1;
 			break;

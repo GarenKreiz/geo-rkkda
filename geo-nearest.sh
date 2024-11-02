@@ -10,7 +10,7 @@
 #
 #	Use at your own risk.  Not suitable for any purpose.  Not legal tender.
 #
-#	$Id: geo-nearest.sh,v 1.54 2018/04/26 16:14:09 rick Exp $
+#	$Id: geo-nearest.sh,v 1.56 2020/07/23 21:05:00 rick Exp $
 #
 
 PROGNAME="$0"
@@ -121,14 +121,6 @@ EXAMPLES
 	Also, cache-type is webcam, earth, multi, event, virtual, letter,
 	unknown, trad (reg is an alias).
 
-    Fetch a bookmark list:
-
-	geo-nearest -b acro
-	or
-	geo-nearest -b BM52955
-	or
-	geo-nearest guid=baae5bf9-4315-4874-b7fb-ac84c9585641
-
     Fetch a PQ query:
 
 	geo-nearest -q "Needs Maintenance"
@@ -143,6 +135,18 @@ SEE ALSO
     geo-newest, geo-found, geo-placed, geo-keyword, geo-code, geo-map,
     geo-waypoint,
     $WEBHOME
+EOF
+    #
+    #	-b option does not work with new lists...
+    #
+	cat <<EOF >/dev/null
+    Fetch a bookmark list:
+
+	geo-nearest -b acro
+	or
+	geo-nearest -b BM52955
+	or
+	geo-nearest guid=baae5bf9-4315-4874-b7fb-ac84c9585641
 EOF
 
 	exit 1
@@ -207,7 +211,8 @@ case "$#" in
 	case "$1" in
 	iraq|Iraq) SEARCH="?country_id=97" ;;
 	u=*)
-	    SEARCH="?$1"
+	    # gsub '+' for ' ' ...
+	    SEARCH="?${1// /+}"
 	    ;;
 	ul=*)
 	    SEARCH="?$1"

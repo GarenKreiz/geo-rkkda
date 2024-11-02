@@ -1,0 +1,77 @@
+#!/bin/sh
+
+PROGNAME="$0"
+
+usage() {
+	cat <<EOF
+NAME
+    `basename $PROGNAME` - Open Street Map tiles to lat/lon
+
+SYNOPSIS
+    `basename $PROGNAME` [options] x y z
+
+DESCRIPTION
+    Open Street Map tiles (x, y, z) to lat/lon.
+
+OPTIONS
+    -D lvl	Debug level
+
+EXAMPLE
+    Convert https://coord.info/GC83BCN :
+
+	$ osmtile2ll 232609 97245 18
+	42.068665 139.439850	n42.04.120 e139.26.391
+EOF
+
+	exit 1
+}
+
+#
+#       Report an error and exit
+#
+error() {
+	echo "`basename $PROGNAME`: $1" >&2
+	exit 1
+}
+
+debug() {
+	if [ $DEBUG -ge $1 ]; then
+	    echo "`basename $PROGNAME`: $2" >&2
+	fi
+}
+
+#
+#       Process the options
+#
+DEBUG=0
+#unset OPTIND
+while getopts "D:h?" opt
+do
+	case $opt in
+	D)	DEBUG="$OPTARG";;
+	h|\?)	usage;;
+	esac
+done
+shift `expr $OPTIND - 1`
+
+#
+#	Main Program
+#
+if [ $# != 3 ]; then
+    usage
+fi
+awk -v X="$1" -v Y="$2" -v Z="$3" '
+function abs(x)         { return (x>=0) ? x : -x }
+BEGIN {
+    PI=3.14159265358979323846
+    num_tiles = PI - 2.0 * PI * Y / 2.0^Z;
+    lat = 180.0 / PI * atan2(0.5 * (exp(num_tiles) - exp(-num_tiles)), 1)
+    lon = X / 2.0^Z * 360.0 - 180
+    printf("%f %f", lat, lon)
+    ilat = int(lat); ilon = int(lon)
+    printf "\t%s%d.%06.3f %s%d.%06.3f", \
+            lat >= 0.0 ? "n" : "s", abs(ilat), abs(lat-ilat) * 60, \
+            lon >= 0.0 ? "e" : "w", abs(ilon), abs(lon-ilon) * 60
+            printf "\n"
+}
+'

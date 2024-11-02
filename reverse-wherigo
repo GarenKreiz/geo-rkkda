@@ -165,7 +165,7 @@ doit() {
 	    if (CHECKDIGIT && GetCheckDigit(tryCode ) != substr(tryCode, 8, 1) )
 	    {
 		print "Checkdigit is wrong on", varA
-		exit
+		exit 1
 	    }
 	    varA = substr(varA, 1, 6)
 	}
@@ -179,7 +179,7 @@ doit() {
 	    if (CHECKDIGIT && GetCheckDigit(tryCode) != substr(tryCode, 8, 1) )
 	    {
 		print "Checkdigit is wrong on", varB
-		exit
+		exit 1
 	    }
 	    varB = substr(varB, 1, 6)
 	}
@@ -193,7 +193,7 @@ doit() {
 	    if (CHECKDIGIT && GetCheckDigit(tryCode) != substr(tryCode, 8, 1) )
 	    {
 		print "Checkdigit is wrong on", varC
-		exit
+		exit 1
 	    }
 	    varC = substr(varC, 1, 6)
 	}
@@ -365,7 +365,7 @@ doit() {
 		    != substr(Thresh, 7, 1) )
 		{
 		    print "Checkdigit is wrong on", Thresh
-		    exit
+		    exit 1
 		}
 		Thresh = substr(Thresh, 1, 6)
 		Thresh = sqrt(Thresh) / 100.0
@@ -384,7 +384,7 @@ doit() {
 		    != substr(Thresh, codeLength, 1) )
                 {
                     print "Checkdigit is wrong on", Thresh
-                    exit
+                    exit 1
                 }
 		Thresh = substr(Thresh, 1, codeLength - 1)
 		Thresh = sqrt(Thresh)
@@ -420,7 +420,7 @@ doit() {
 		    != substr(Thresh, codeLength, 1) )
 		{
 		    print "Checkdigit is wrong on", Thresh
-		    exit
+		    exit 1
 		}
 		Thresh = substr(Thresh, 1, codeLength - 1)
 		Thresh = sqrt(Thresh)
@@ -450,7 +450,11 @@ doit() {
 	else if (length(a) == 7 && length(b) == 7 && length(c) == 7)
 	    code2LatLong(a, b, c)
 	else
+	{
 	    print "reverse-wherigo: length != 6, 7, 18, 20, 21, 42, 63 or 70"
+	    exit 2
+	}
+	exit 0
     }
     '
 }

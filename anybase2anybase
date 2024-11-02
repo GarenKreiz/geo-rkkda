@@ -11,7 +11,8 @@ SYNOPSIS
     `basename $PROGNAME` [options] num ...
 
 DESCRIPTION
-    Base to base conversion to or from base 2 through 62.
+    Base to base conversion to or from base 2 through 62, and 4 function
+    calculator.
 
     If the high input base is less than 37, then upper/lower case is ignored,
     e.g. 1a == 1A == decimal 26.
@@ -34,6 +35,9 @@ DESCRIPTION
     use. e.g.:
 
     0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
+
+    You can also do add, subtract, multiply and divide in whatever base
+    is selected.
 
 OPTIONS
     -l		Lowercase before uppercase (default)
@@ -74,6 +78,16 @@ EXAMPLE
 	53   | 23744319  12448505   7B50B13   4BC47C1   322126B  
 	54   | 25427305  13397A02   8622A61  *5363857*  353C721  
 	55   | 27197501  14396981   9137365   58334C6   387D8A9  
+
+    Solve https://coord.info/GC7EFHA :
+
+	$ anybase2anybase -k10 -K36 48188933 1782948454 47723135 26350054
+	south thirty seven forty 
+
+    Solve https://coord.info/GC941CA :
+
+	$ anybase2anybase -k8 -K8 5*7 12*45 3*5+10 12*31
+	43 562 27 372 
 EOF
 	exit 1
 }
@@ -154,6 +168,16 @@ base2decimal()
 	   base="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 	r = 0
 	sign = 1
+	#
+	# Do Add/Subtract/Multiply/Divide if requested...
+	#
+	if (val ~ "[-+*/]")
+	{
+	    cmd = sprintf("echo \"obase=%d; ibase=%d; %s\" | bc",
+		inbase, inbase, val)
+	    cmd | getline val; close(cmd)
+	    #print cmd, val > "/dev/stderr"
+	}
 	if (substr(val, 1, 1) == "-")
 	{
 	    val = substr(val, 2)
@@ -186,6 +210,12 @@ decimal2base()
 	   base="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	else
 	   base="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+	sign = 1
+	if (substr(val, 1, 1) == "-" && outbase <= 10)
+	{
+	    val = substr(val, 2)
+	    sign = -1
+	}
 	if (outbase <= 62)
 	{
 	    r=""
@@ -196,7 +226,10 @@ decimal2base()
 		r = d "" r
 		val = int(val/outbase)
 	    }
-	    printf "%s ", r
+	    if (outbase <= 10)
+		printf "%s ", sign*r
+	    else
+		printf "%s ", r
 	}
     }
     '
@@ -220,28 +253,40 @@ for i in $*; do
         len=4
     fi
     #
-    printf "     | OBASE\n"
-    printf "IBASE| "
-    for (( obase=$olo; obase <= $ohi; ++obase )); do
-	printf "%*d  " $len "$obase"
-    done
-    echo
-    echo -n "-----+-"
-    for (( obase=$olo; obase <= $ohi; ++obase )); do
-	printf "%*.*s" $len $len \
-	    "-----------------------------------------------------------------"
-	if [ $obase -lt $ohi ]; then
-	    printf -- "--"
-	fi
-    done
-    echo
-    for (( ibase=$ilo; ibase <= $ihi; ++ibase )); do
-	printf "%2d   | " $ibase
+    if [ $ilo = $ihi -a $olo = $ohi ]; then
+	#
+	# Do input base equals 1 and output base equals 1 differently..
+	#
+	ti=`base2decimal $ilo $i`
+	to=`decimal2base $olo $ti`
+	printf "%s " $to
+    else
+	printf "     | OBASE\n"
+	printf "IBASE| "
 	for (( obase=$olo; obase <= $ohi; ++obase )); do
-	    ti=`base2decimal $ibase $i`
-	    to=`decimal2base $obase $ti`
-	    printf "%*.*s  " $len $len $to
+	    printf "%*d  " $len "$obase"
 	done
 	echo
-    done
+	echo -n "-----+-"
+	for (( obase=$olo; obase <= $ohi; ++obase )); do
+	    printf "%*.*s" $len $len \
+		"-----------------------------------------------------------------"
+	    if [ $obase -lt $ohi ]; then
+		printf -- "--"
+	    fi
+	done
+	echo
+	for (( ibase=$ilo; ibase <= $ihi; ++ibase )); do
+	    printf "%2d   | " $ibase
+	    for (( obase=$olo; obase <= $ohi; ++obase )); do
+		ti=`base2decimal $ibase $i`
+		to=`decimal2base $obase $ti`
+		printf "%*.*s  " $len $len $to
+	    done
+	    echo
+	done
+    fi
 done
+if [ $ilo = $ihi -a $olo = $ohi ]; then
+    printf "\n"
+fi

@@ -180,6 +180,12 @@ read_rc_file() {
 		#DATEFMT=0
 		#CURL_OPTS="-4"
 		#CURL_OPTS="--sslv3"
+
+		#################################
+		# Login, Email, and password for opencaching.*
+		#OK_USERNAME=name
+		#OK_EMAIL=name@yyy.com
+		#OK_PASSWORD=password
 	EOF
 	error "First time user: please review and edit $HOME/.georc"
     fi

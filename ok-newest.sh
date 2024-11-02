@@ -5,7 +5,7 @@
 #
 #	Use at your own risk.  Not suitable for any purpose.  Not legal tender.
 #
-#	$Id: ok-newest.sh,v 1.12 2013/02/18 21:41:08 rick Exp $
+#	$Id: ok-newest.sh,v 1.26 2019/07/02 18:48:59 rick Exp $
 #
 
 PROGNAME="$0"
@@ -22,8 +22,11 @@ SYNOPSIS
 
 	`basename $PROGNAME` [options] country lat lon
 
+	`basename $PROGNAME` [options] country state lat lon
+
 DESCRIPTION
-	Fetch a list of newest geocaches from opencaching.us.
+	Fetch a list of newest geocaches from opencaching.us or another
+	opencaching site based on OKBASE setting.
 
 	Requires:
 	    curl	http://curl.haxx.se/
@@ -46,13 +49,33 @@ EXAMPLES
 
 	    ok-newest -c -s
 
-	Newest in UK:
+	Newest in Czechia:
 
-	    ok-newest -s -E OKBASE=http://www.opencaching.org.uk uk n53.3 w1.5
+	    ok-newest -E OKBASE=https://www.opencaching.cz czechia n48 e9
 
 	Newest in Germany:
 
-	    ok-newest -s -E OKBASE=http://www.opencaching.de germany n50 e7
+	    ok-newest -E OKBASE=https://opencaching.de germany n50 e7
+
+	Newest in Italy:
+
+	    ok-newest -E OKBASE=https://www.opencaching.it italy n48 e10
+
+	Newest in Nederlands:
+
+	    ok-newest -E OKBASE=https://www.opencaching.nl netherlands n51 e5
+
+	Newest in Poland:
+
+	    ok-newest -E OKBASE=https://opencaching.pl poland n51.37.944 e5
+
+	Newest in Romania:
+
+	    ok-newest -E OKBASE=https://www.opencaching.ro romania n44 e24
+
+	Newest in UK:
+
+	    ok-newest -E OKBASE=https://opencache.uk uk n53.3 w1.5
 
 SEE ALSO
 	geo-newest, geo-nearest, geo-found, geo-placed, geo-code, geo-map,
@@ -85,7 +108,7 @@ ok_state2num() {
 	dc)			num="11";;
 	fl|florida)		num="12";;
 	ga|georgia)		num="13";;
-	ha|hawaii)		num="15";;
+	hi|hawaii)		num="15";;
 	id|idaho)		num="16";;
 	il|illinois)		num="17";;
 	in|indiana)		num="18";;
@@ -125,6 +148,7 @@ ok_state2num() {
 	wv|west\ virginia)	num="54";;
 	wi|wisconsin)		num="55";;
 	wy|wyoming)		num="56";;
+	[1-9]*)			num=$_name;;
 	*)			return 1;;
 	esac
 
@@ -275,8 +299,11 @@ case "$#" in
 2)      STATE="$2"
         COUNTRY="$1"
         ;;
-1)	STATE="$1";;
+1)	STATE="$1"
+	COUNTRY=us
+	;;
 0)
+	COUNTRY=us
         ;;
 *)
         usage
@@ -295,6 +322,7 @@ LONH=`degdec2mindec $LON EW | sed -e "s/.//" -e "s/\..*//" `
 LONMIN=`degdec2mindec $LON | sed "s/[^.]*\.//" `
 if [ "$OKCC" = "" ]; then
     country=`echo $STATE | tr '[A-Z]' '[a-z]'`
+    country=`echo $COUNTRY | tr '[A-Z]' '[a-z]'`
     ok_country2cc "$country" CC
     if [ "$CC" = "" ]; then
 	OKCC=`echo $COUNTRY | sed 's/^[.]//' `
@@ -302,12 +330,17 @@ if [ "$OKCC" = "" ]; then
 	OKCC="$CC"
     fi
     SEARCH="searchto=searchbydistance&sort=bycreated"
+    SEARCH="searchto=searchbyname&sort=bycreated"
 fi
-if [ "$OKCC" = "" ]; then
+if [ "$OKCC" = "US" ]; then
     state=`echo $STATE | tr '[A-Z]' '[a-z]'`
     ok_state2num "$state" REGION
+    if [ "$DEBUG" -ge 1 ]; then
+	echo "state region: $state $REGION" >&2
+    fi
     if [ "$REGION" != "" ]; then
 	SEARCH="searchto=searchbystate&region=$REGION&sort=bycreated"
+	SEARCH="searchto=searchbyname&region=$REGION&sort=bycreated"
     fi
 fi
 SEARCH="$SEARCH&latNS=$LATNS&lat_h=$LATH&lat_min=$LATMIN"

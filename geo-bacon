@@ -109,7 +109,7 @@ else
 	text = $0
 	gsub(/.*>/, "", text)
 	gsub(/ /, "", text)
-	gsub(/[.,]/, "", text)
+	gsub(/[.,:?’]/, "", text)
 	gsub(/[a-zA-Z]/, "a", text)
 	printf "%s", text
     }
@@ -117,7 +117,7 @@ else
 	text = $0
 	gsub(/.*>/, "", text)
 	gsub(/ /, "", text)
-	gsub(/[.,]/, "", text)
+	gsub(/[.,:?’]/, "", text)
 	gsub(/[a-zA-Z]/, "b", text)
 	printf "%s", text
     }

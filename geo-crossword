@@ -116,9 +116,33 @@ do
 	case $opt in
 	w)	
 		case "$OPTARG" in
-		french)  WORDS=$HOME/lib/geo/french;;
-		german)  WORDS=$HOME/lib/geo/ngerman;;
-		spanish) WORDS=$HOME/lib/geo/spanish;;
+		french)
+			if [ -s "$HOME/lib/geo/french" ]; then
+			    WORDS=$HOME/lib/geo/french
+			elif [ -s "/usr/lib/geo/french" ]; then
+			    WORDS=/usr/lib/geo/french
+			else
+			    error "Can't find 'french'"
+			fi
+			;;
+		german)
+			if [ -s "$HOME/lib/geo/ngerman" ]; then
+			    WORDS=$HOME/lib/geo/ngerman
+			elif [ -s "/usr/lib/geo/ngerman" ]; then
+			    WORDS=/usr/lib/geo/ngerman
+			else
+			    error "Can't find 'ngerman'"
+			fi
+			;;
+		spanish)
+			if [ -s "$HOME/lib/geo/spanish" ]; then
+			    WORDS=$HOME/lib/geo/spanish
+			elif [ -s "/usr/lib/geo/spanish" ]; then
+			    WORDS=/usr/lib/geo/spanish
+			else
+			    error "Can't find 'spanish'"
+			fi
+			;;
 		*)	 WORDS="$OPTARG";;
 		esac
 		;;

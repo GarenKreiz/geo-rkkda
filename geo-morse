@@ -75,7 +75,7 @@ one_word_per_line() {
 decode_american() {
     # Some don't decode!
     one_word_per_line |
-    tr '.01' ',,-' | $SWAP |
+    sed -e 's/·/,/g' -e 's/\./,/g' -e 's/0/,/g' -e 's/1/-/g' | $SWAP |
     awk '
     /^,-$/ { printf "a"; next }
     /^-,,,$/ { printf "b"; next }
@@ -122,7 +122,7 @@ decode_american() {
 
 decode_morse() {
     one_word_per_line |
-    tr '.01' ',,-' | $SWAP |
+    sed -e 's/·/,/g' -e 's/\./,/g' -e 's/0/,/g' -e 's/1/-/g' | $SWAP |
     awk '
     /^,-$/ { printf "a"; next }
     /^-,,,$/ { printf "b"; next }

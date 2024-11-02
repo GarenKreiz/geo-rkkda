@@ -1,0 +1,90 @@
+#!/bin/sh
+
+PROGNAME="$0"
+
+usage() {
+	cat <<EOF
+NAME
+    `basename $PROGNAME` - mapcode to lat/lon
+
+SYNOPSIS
+    `basename $PROGNAME` [options]
+
+DESCRIPTION
+    mapcode to lat/lon.
+
+OPTIONS
+    -D lvl	Debug level
+
+EXAMPLES
+    Convert R581Y.Y786:
+
+	$ mapcode2ll R581Y.Y786
+	34.087310999999999694 -118.95005249999999819
+	N34.087311 W118.950052
+	N34 5' 14.319600" W118 57' 0.189000"
+	N34.05.239 W118.57.003
+
+SEE ALSO
+    https://www.mapcode.com/
+
+    https://github.com/mapcode-foundation/mapcode-cpp
+EOF
+
+	exit 1
+}
+
+#
+#       Report an error and exit
+#
+error() {
+	echo "`basename $PROGNAME`: $1" >&2
+	exit 1
+}
+
+debug() {
+	if [ $DEBUG -ge $1 ]; then
+	    echo "`basename $PROGNAME`: $2" >&2
+	fi
+}
+
+#
+#       Process the options
+#
+DEBUG=0
+while getopts "D:h?" opt
+do
+	case $opt in
+	D)	DEBUG="$OPTARG";;
+	h|\?)	usage;;
+	esac
+done
+shift `expr $OPTIND - 1`
+
+#
+#	Main Program
+#
+if ! which mapcode >/dev/null 2>&1; then
+    debug 0 "You need to install 'mapcode'."
+    debug 0 ""
+    debug 0 "See https://github.com/mapcode-foundation/mapcode-cpp"
+    debug 0 ""
+    debug 0 "$ git clone https://github.com/mapcode-foundation/mapcode-cpp.git"
+    debug 0 "$ cd mapcode-cpp/mapcodelib"
+    debug 0 "$ gcc -O -c mapcoder.c"
+    debug 0 "$ cd ../utility"
+    debug 0 "$ gcc -O mapcode.cpp -o mapcode ../mapcodelib/mapcoder.o"
+    debug 0 "$ cp mapcode \$BIN"
+    error ""
+fi
+
+for i in $*; do
+    case $i in
+    *.*)
+		rc=`mapcode -d AAA $i`
+		if [ $? != 0 ]; then exit; fi
+		geo-coords $rc
+		;;
+    *)		error "Illegal mapcode '$i'";;
+    esac
+done

@@ -18,6 +18,7 @@ DESCRIPTION
     Up to three variables can be specified.
 
 OPTIONS
+	-m		Map the coordinates.
 	-u		Unique coordinates. "-u -u" is really unique.
 	-v let=vals	Restrict the set of 'vals' for 'let' (e.g. -v a=13579)
 	-D lvl		Debug level
@@ -40,6 +41,10 @@ EXAMPLES
     Use in geo-map:
 
 	$ geo-map -s0 \$(geo-incomplete-coords n45.00.a12 w93.25.b12)
+
+    Or:
+
+	$ geo-incomplete-coords -m n45.00.a12 w93.25.b12
 
     Restrict values:
 
@@ -118,9 +123,11 @@ debug() {
 VALS=
 DEBUG=0
 UNIQUE=0
-while getopts "uv:D:h?" opt
+MAP=0
+while getopts "muv:D:h?" opt
 do
 	case $opt in
+	m)	MAP=1;;
 	u)	if [ $UNIQUE = 1 ]; then
 		    UNIQUE=2
 		else
@@ -237,4 +244,8 @@ doit()
     '
 }
 
-echo $* | doit
+if [ $MAP = 1 ]; then
+    geo-map ` echo $* | doit `
+else
+    echo $* | doit
+fi

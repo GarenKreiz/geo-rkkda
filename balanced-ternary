@@ -22,8 +22,10 @@ DESCRIPTION
 	T	0	1	Wikipedia page
 	M	Z	P	M is MINUS, Z is ZERO, P is PLUS
 	Z	M	C	rot-13 of the above
+	!@..*(	0	12..89	cachbefound caches
 
 OPTIONS
+    -b base	Using 'base' [3]
     -e		Encode decimal to balanced-ternary
     -D lvl	Debug level
 
@@ -46,6 +48,12 @@ EXAMPLES
 	+--+
 	-++-0--
 	+-0++0+
+
+    Convert to decimal from base 11, using https://coord.info/GC94EZZ
+    cachbefound notation:
+
+	$ balanced-ternary -b11 '00001#5%4'
+	11202
 
 SEE ALSO
     https://en.wikipedia.org/wiki/Balanced_ternary
@@ -76,9 +84,11 @@ debug() {
 #
 DEBUG=0
 ENCODE=0
-while getopts "eD:h?" opt
+BASE=3
+while getopts "b:eD:h?" opt
 do
 	case $opt in
+	b)	BASE="$OPTARG";;
 	e)	ENCODE=1;;
 	D)	DEBUG="$OPTARG";;
 	h|\?)	usage;;
@@ -88,20 +98,38 @@ shift `expr $OPTIND - 1`
 
 bt_int()
 {
-    awk '
+    awk -v BASE=$BASE '
     function bt_int(b,		n, c, rot13)
     {
 	n = 0
 	rot13 = match(b, "[C]")
 	for (i = 1; i <= length(b); ++i)
 	{
-	    n *= 3
+	    n *= BASE
 	    c = substr(b, i, 1)
 	    if (c == "+") ++n
 	    if (c == "C") ++n
 	    if (c == "P") ++n
 	    if (c == "1") ++n
+	    if (c == "2") n=n+2
+	    if (c == "3") n=n+3
+	    if (c == "4") n=n+4
+	    if (c == "5") n=n+5
+	    if (c == "6") n=n+6
+	    if (c == "7") n=n+7
+	    if (c == "8") n=n+8
+	    if (c == "9") n=n+9
+
 	    if (c == "-") --n
+	    if (c == "!") --n
+	    if (c == "@") n=n-2
+	    if (c == "#") n=n-3
+	    if (c == "$") n=n-4
+	    if (c == "%") n=n-5
+	    if (c == "^") n=n-6
+	    if (c == "&") n=n-7
+	    if (c == "*") n=n-8
+	    if (c == "(") n=n-9
 	    if (rot13 && c == "Z") --n
 	    if (!rot13 && c == "M") --n
 	    if (c == "T") --n

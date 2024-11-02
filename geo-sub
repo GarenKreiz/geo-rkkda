@@ -23,6 +23,7 @@ OPTIONS
     -n		Select 0-9
     -b		Select a-z1-90
     -c		Circular rotation
+    -z		Atbash cipher
     -D lvl	Debug level
 
 EXAMPLES
@@ -96,6 +97,36 @@ EXAMPLES
 	Left:   NORTH FORTY TWO DEGREES
 	Right:  NQVZP PAFJQ NSM DGKXMOE
 	
+    # Atbash (z-a, y-az, x-azy, ...)
+
+	$ geo-sub -z Wvogz Vxsl / Ornz Vxsl Erxgli Vxsl Mlevnyvi Wvogz Vxsl
+	0:	Delta Echo / Lima Echo Victor Echo November Delta Echo
+	1:      Cdksz Dbgn / Khlz Dbgn Uhbsnq Dbgn Mnudladq Cdksz Dbgn
+	2:      Bcjry Cafm / Jgky Cafm Tgarmp Cafm Lmtckzcp Bcjry Cafm
+	3:      Abiqx Bzel / Ifjx Bzel Sfzqlo Bzel Klsbjybo Abiqx Bzel
+	4:      Zahpw Aydk / Heiw Aydk Reypkn Aydk Jkraixan Zahpw Aydk
+	5:      Yzgov Zxcj / Gdhv Zxcj Qdxojm Zxcj Ijqzhwzm Yzgov Zxcj
+	6:      Xyfnu Ywbi / Fcgu Ywbi Pcwnil Ywbi Hipygvyl Xyfnu Ywbi
+	7:      Wxemt Xvah / Ebft Xvah Obvmhk Xvah Ghoxfuxk Wxemt Xvah
+	8:      Vwdls Wuzg / Daes Wuzg Naulgj Wuzg Fgnwetwj Vwdls Wuzg
+	9:      Uvckr Vtyf / Czdr Vtyf Mztkfi Vtyf Efmvdsvi Uvckr Vtyf
+	10:     Tubjq Usxe / Bycq Usxe Lysjeh Usxe Delucruh Tubjq Usxe
+	11:     Staip Trwd / Axbp Trwd Kxridg Trwd Cdktbqtg Staip Trwd
+	12:     Rszho Sqvc / Zwao Sqvc Jwqhcf Sqvc Bcjsapsf Rszho Sqvc
+	13:     Qrygn Rpub / Yvzn Rpub Ivpgbe Rpub Abirzore Qrygn Rpub
+	14:     Pqxfm Qota / Xuym Qota Huofad Qota Zahqynqd Pqxfm Qota
+	15:     Opwel Pnsz / Wtxl Pnsz Gtnezc Pnsz Yzgpxmpc Opwel Pnsz
+	16:     Novdk Omry / Vswk Omry Fsmdyb Omry Xyfowlob Novdk Omry
+	17:     Mnucj Nlqx / Urvj Nlqx Erlcxa Nlqx Wxenvkna Mnucj Nlqx
+	18:     Lmtbi Mkpw / Tqui Mkpw Dqkbwz Mkpw Vwdmujmz Lmtbi Mkpw
+	19:     Klsah Ljov / Spth Ljov Cpjavy Ljov Uvcltily Klsah Ljov
+	20:     Jkrzg Kinu / Rosg Kinu Boizux Kinu Tubkshkx Jkrzg Kinu
+	21:     Ijqyf Jhmt / Qnrf Jhmt Anhytw Jhmt Stajrgjw Ijqyf Jhmt
+	22:     Hipxe Igls / Pmqe Igls Zmgxsv Igls Rsziqfiv Hipxe Igls
+	23:     Ghowd Hfkr / Olpd Hfkr Ylfwru Hfkr Qryhpehu Ghowd Hfkr
+	24:     Fgnvc Gejq / Nkoc Gejq Xkevqt Gejq Pqxgodgt Fgnvc Gejq
+	25:     Efmub Fdip / Mjnb Fdip Wjdups Fdip Opwfncfs Efmub Fdip
+	26:     Delta Echo / Lima Echo Victor Echo November Delta Echo
 EOF
 
 	exit 1
@@ -122,9 +153,10 @@ DEBUG=0
 ADDLET=0
 MODE=a
 OPT=
+ATBASH=0
 CIRCULAR=0
 ALPHA="a b c d e f g h i j k l m n o p q r s t u v w x y z a"
-while getopts "abcno:D:h?" opt
+while getopts "abcnozD:h?" opt
 do
 	case $opt in
 	a)	ADDLET=1;;
@@ -134,6 +166,7 @@ do
 		;;
 	c)	CIRCULAR=1;;
 	o)	OPT="$OPTARG";;
+	z)	ATBASH=1;;
 	D)	DEBUG="$OPTARG";;
 	h|\?)	usage;;
 	esac
@@ -177,11 +210,53 @@ circle() {
     }'
 }
 
+atbash() {
+    awk '
+    BEGIN {
+	inUC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	inlc = "abcdefghijklmnopqrstuvwxyz"
+	outUC = "ZYXWVUTSRQPONMLKJIHGFEDCBA"
+	outlc = "zyxwvutsrqponmlkjihgfedcba"
+    }
+    {
+	for (l = 0; l <= 26; ++l)
+	{
+	    printf "%d:	", l
+	    for (i = 1; i <= length($0); i++)
+	    {
+		char = substr($0, i, 1)
+		#print "char: ", char
+		A = index(inUC, char)
+		a = index(inlc, char)
+		if (A != 0) 
+		    printf("%c", substr(outUC, A, 1))
+		else if (a != 0) 
+		    printf("%c", substr(outlc, a, 1))
+		else
+		    printf("%c", char)
+	    }
+	    printf "\n"
+	    ch = substr(outUC, 1, 1)
+	    outUC = substr(outUC, 2) ch
+	    ch = substr(outlc, 1, 1)
+	    outlc = substr(outlc, 2) ch
+	}
+    }
+    END {
+	printf("\n")
+    }'
+}
+
 doit()
 {
     if [ $CIRCULAR = 1 ]; then
 	circle 0 < $TMP
 	circle 1 < $TMP
+	return
+    fi
+
+    if [ $ATBASH = 1 ]; then
+	atbash < $TMP
 	return
     fi
 

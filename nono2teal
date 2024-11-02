@@ -98,6 +98,7 @@ BEGIN {
 inrows == 1 || incols == 1 {
     if ($0 == "") next
     text = $0
+    sub(/ *$/, "", text)
     gsub(/ /, ",", text)
     printf "%s[%s]", first == 0 ? "," : "", text
     first = 0

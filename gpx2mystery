@@ -1,0 +1,128 @@
+#/bin/sh
+
+PROGNAME="$0"
+
+usage() {
+	cat <<EOF
+NAME
+    `basename $PROGNAME` - gpx2mystery
+
+SYNOPSIS
+    `basename $PROGNAME` [options] [tag] < gpx-file
+
+DESCRIPTION
+    Convert a gpx file into a geo-mystery file.
+
+OPTIONS
+    -D lvl	Debug level
+
+EXAMPLE
+    Convert GPX file:
+
+	$ gpx2mystery <cito_finales.gpx "(es) - wbf" | sort -k5
+	GC7R3QN n40.20.962 w04.03.643   CITO #045 (es) - wbf
+	GC7R3QP n40.21.042 w04.03.563   CITO #046 (es) - wbf
+	GC7R3QQ n40.20.954 w04.03.531   CITO #047 (es) - wbf
+	GC7R3QT n40.20.838 w04.03.493   CITO #048 (es) - wbf
+	GC7R3QV n40.20.759 w04.03.281   CITO #049 (es) - wbf
+	GC7R3R3 n40.21.062 w04.03.157   CITO #054 (es) - wbf
+	GC7R3R4 n40.21.124 w04.03.329   CITO #055 (es) - wbf
+	GC7R3WZ n40.18.898 w04.01.959   CITO #118 (es) - wbf
+	GC7R3Y8 n40.20.401 w04.01.742   CITO #141 (es) - wbf
+	GC7R3YA n40.20.300 w04.01.701   CITO #142 (es) - wbf
+	GC7R3YC n40.20.210 w04.01.683   CITO #143 (es) - wbf
+	GC7R3YH n40.20.138 w04.01.589   CITO #144 (es) - wbf
+	GC7R42B n40.19.500 w04.04.066   CITO #195 (es) - wbf
+	GC7R42C n40.19.414 w04.04.078   CITO #196 (es) - wbf
+	GC7R42F n40.19.295 w04.04.146   CITO #197 (es) - wbf
+	GC7R42H n40.19.182 w04.04.198   CITO #198 (es) - wbf
+	GC7R42K n40.19.091 w04.04.239   CITO #199 (es) - wbf
+	GC7R42M n40.18.998 w04.04.307   CITO #200 (es) - wbf
+	GC7R42X n40.18.843 w04.04.349   CITO #201 (es) - wbf
+	GC7R42Y n40.18.800 w04.04.460   CITO #202 (es) - wbf
+	GC7R438 n40.18.698 w04.04.519   CITO #203 (es) - wbf
+	GC7R43A n40.18.577 w04.04.552   CITO #204 (es) - wbf
+EOF
+	exit 1
+}
+
+#
+#       Report an error and exit
+#
+error() {
+	echo "`basename $PROGNAME`: $1" >&2
+	exit 1
+}
+
+debug() {
+	if [ $DEBUG -ge $1 ]; then
+	    echo "`basename $PROGNAME`: $2" >&2
+	fi
+}
+
+#
+#       Process the options
+#
+DEBUG=0
+while getopts "D:h?" opt
+do
+	case $opt in
+	D)	DEBUG="$OPTARG";;
+	h|\?)	usage;;
+	esac
+done
+shift `expr $OPTIND - 1`
+
+#
+#	Main Program
+#
+
+sed -e 's/<wpt/\n&/g' |
+awk -v TAG="$1" '
+function abs(x) { return (x>=0) ? x : -x }
+/<wpt/ {
+    lat = $0
+    sub(".*<wpt lat=.", "", lat)
+    sub(". lon.*", "", lat)
+    lon = $0
+    sub(".*lon=.", "", lon)
+    sub(".>.*", "", lon)
+    # print lat, lon
+}
+/<name>GC/ {
+    gcid = $0
+    sub(".*<name>", "", gcid)
+    sub("<.name>.*", "", gcid)
+    # print gcid
+}
+/<name>R/ {
+    gcid = $0
+    sub(".*<name>", "", gcid)
+    sub("<.name>.*", "", gcid)
+    # print gcid
+}
+/<desc>/ {
+    desc = $0
+    sub(".*<desc>", "", desc)
+    sub(" by .*", "", desc)
+    sub("</desc>.*", "", desc)
+    #print desc
+    #if (desc != "" && gcid != "" && lat != "")
+    if (gcid != "" && lat != "")
+    {
+	ilat = int(lat); ilon = int(lon)
+	printf "%s	%s%02d.%06.3f %s%02d.%06.3f	%s %s\n", \
+	    gcid, \
+	    ilat >= 0.0 ? "n" : "s", abs(ilat), abs(lat-ilat) * 60, \
+	    ilon >= 0.0 ? "e" : "w", abs(ilon), abs(lon-ilon) * 60, \
+	    desc,
+	    TAG
+    }
+}
+/<.wpt>/ {
+    lat=""
+    lon=""
+    gcid=""
+    desc=""
+}
+'

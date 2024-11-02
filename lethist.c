@@ -69,6 +69,20 @@ usage(void)
 "	 8 8 ; + ? ; ; + ; 4 8 ) + ? ; 4.\n"
 "\n"
 "	 $ lethist \"Cottonwood trees are, perhaps, the best shade trees\"\n"
+"	 ,       2\n"
+"	 C       1\n"
+"	 a       3\n"
+"	 b       1\n"
+"	 d       2\n"
+"	 e       9\n"
+"	 h       3\n"
+"	 n       1\n"
+"	 o       4\n"
+"	 p       2\n"
+"	 r       4\n"
+"	 s       5\n"
+"	 t       6\n"
+"	 w       1\n"
 "\n"
 "OPTIONS\n"
 "       -t          Print total\n"
@@ -92,6 +106,7 @@ main(int argc, char *argv[])
 	    extern char	*optarg;
 	#endif
 	int		c, i, j, total;
+	int		unicode = 0;
 
 	while ( (c = getopt(argc, argv, "tD:?h")) != EOF)
 		switch (c)
@@ -115,7 +130,58 @@ main(int argc, char *argv[])
 	    // Compute histogram
 	    while ((c = getchar()) != EOF)
 	    {
-		if (!isprint(c)) continue;
+		if (unicode == 0 && c == 0xC3)
+		{
+		    unicode = 1;
+		    continue;
+		}
+		if (unicode == 1)
+		{
+		    unicode = 0;
+		    switch (c)
+		    {
+		    // lowercase `
+		    case 0xA0: case 0xA8: case 0xAC: case 0xB2: case 0xB9:
+		    // uppercase `
+		    case 0x80: case 0x88: case 0x8C: case 0x92: case 0x99:
+		    // lowercase '
+		    case 0xA1: case 0xA9: case 0xAD:
+		    case 0xB3: case 0xBA: case 0xBD:
+		    // uppercase '
+		    case 0x81: case 0x89: case 0x8D:
+		    case 0x93: case 0x9A: case 0x9D:
+		    // lowercase ^
+		    case 0xA2: case 0xAA: case 0xAE: case 0xB4: case 0xBB:
+		    // uppercase ^
+		    case 0x82: case 0x8A: case 0x8E: case 0x94: case 0x9B:
+		    // lowercase ~
+		    case 0xA3: case 0xB1: case 0xB5:
+		    // uppercase ~
+		    case 0x83: case 0x91: case 0x95:
+		    // lowercase :
+		    case 0xA4: case 0xAB: case 0xAF:
+		    case 0xB6: case 0xBC: case 0xBF:
+		    // uppercase :
+		    case 0x84: case 0x8B: case 0x8F:
+		    case 0x96: case 0x9C: /* case 0xB8: */
+		    // o
+		    case 0xA5: case 0x85:
+		    // ae AE
+		    case 0xA6: case 0x86:
+		    // c, C,
+		    case 0xA7: case 0x87:
+		    // o. D-
+		    case 0xB0: case 0x90:
+		    // o/ O/
+		    case 0xB8: case 0x98:
+		    // ss
+		    case 0x9F:
+			break;
+		    default:
+			continue;
+		    }
+		}
+		else if (!isprint(c)) continue;
 		if (c == ' ') continue;
 		++Hist[c];
 	    }
@@ -126,7 +192,43 @@ main(int argc, char *argv[])
 	    {
 		for (j = 0; (c = argv[i][j]); ++j)
 		{
-		    if (!isprint(c)) continue;
+		    c &= 0xff;
+		    if (unicode == 0 && c == 0xC3)
+		    {
+			unicode = 1;
+			continue;
+		    }
+		    if (unicode == 1)
+		    {
+			unicode = 0;
+			switch (c)
+			{
+			case 0xA0: case 0xA8: case 0xAC: case 0xB2: case 0xB9:
+			case 0x80: case 0x88: case 0x8C: case 0x92: case 0x99:
+			case 0xA1: case 0xA9: case 0xAD:
+			case 0xB3: case 0xBA: case 0xBD:
+			case 0x81: case 0x89: case 0x8D:
+			case 0x93: case 0x9A: case 0x9D:
+			case 0xA2: case 0xAA: case 0xAE: case 0xB4: case 0xBB:
+			case 0x82: case 0x8A: case 0x8E: case 0x94: case 0x9B:
+			case 0xA3: case 0xB1: case 0xB5:
+			case 0x83: case 0x91: case 0x95:
+			case 0xA4: case 0xAB: case 0xAF:
+			case 0xB6: case 0xBC: case 0xBF:
+			case 0x84: case 0x8B: case 0x8F:
+			case 0x96: case 0x9C: /* case 0xB8: */
+			case 0xA5: case 0x85:
+			case 0xA6: case 0x86:
+			case 0xA7: case 0x87:
+			case 0xB0: case 0x90:
+			case 0xB8: case 0x98:
+			case 0x9F:
+			    break;
+			default:
+			    continue;
+			}
+		    }
+		    else if (!isprint(c)) continue;
 		    if (c == ' ') continue;
 		    ++Hist[c];
 		}
@@ -138,7 +240,34 @@ main(int argc, char *argv[])
 	for (i = 0; i < 256; ++i)
 	{
 	    if (Hist[i] == 0) continue;
-	    printf("%c	%d\n", i, Hist[i]);
+	    switch (i)
+	    {
+		case 0xA0: case 0xA8: case 0xAC: case 0xB2: case 0xB9:
+		case 0x80: case 0x88: case 0x8C: case 0x92: case 0x99:
+		case 0xA1: case 0xA9: case 0xAD:
+		case 0xB3: case 0xBA: case 0xBD:
+		case 0x81: case 0x89: case 0x8D:
+		case 0x93: case 0x9A: case 0x9D:
+		case 0xA2: case 0xAA: case 0xAE: case 0xB4: case 0xBB:
+		case 0x82: case 0x8A: case 0x8E: case 0x94: case 0x9B:
+		case 0xA3: case 0xB1: case 0xB5:
+		case 0x83: case 0x91: case 0x95:
+		case 0xA4: case 0xAB: case 0xAF:
+		case 0xB6: case 0xBC: case 0xBF:
+		case 0x84: case 0x8B: case 0x8F:
+		case 0x96: case 0x9C: /* case 0xB8: */
+		case 0xA5: case 0x85:
+		case 0xA6: case 0x86:
+		case 0xA7: case 0x87:
+		case 0xB0: case 0x90:
+		case 0xB8: case 0x98:
+		case 0x9F:
+		    printf("%c%c	%d\n", 0xC3, i, Hist[i]);
+		    break;
+		default:
+		    printf("%c	%d\n", i, Hist[i]);
+		    break;
+	    }
 	    total += Hist[i];
 	}
 	if (DoTotal)

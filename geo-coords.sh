@@ -36,6 +36,7 @@ OPTIONS
 	-m	Output MinDec only
 	-l	Lat only
 	-L	Long only
+	-M	Also do a geo-map of the coordinates
 
 EXAMPLE
 	Convert DegDec:
@@ -79,17 +80,19 @@ DEGDEC=0
 DOLAT=0
 DOLON=0
 ANTI=0
+MAP=0
 read_rc_file
 
 #
 #       Process the options
 #
-while getopts "alLdmDh?-" opt
+while getopts "alLdmMDh?-" opt
 do
 	case $opt in
 	a)	ANTI="1";;
 	d)	DEGDEC="1";;
 	m)	DEGMIN="1";;
+	M)	MAP="1";;
 	l)	DOLAT="1";;
 	L)	DOLON="1";;
 	D)	DEBUG="$OPTARG";;
@@ -129,6 +132,7 @@ case "$#" in
 	    if [ $DEGMIN = 1 ]; then opts="$opts -m"; fi
 	    if [ $DOLAT = 1 ]; then opts="$opts -l"; fi
 	    if [ $DOLON = 1 ]; then opts="$opts -L"; fi
+	    if [ $MAP = 1 ]; then opts="$opts -M"; fi
 	    geo-coords $opts $a
 	done
 	exit
@@ -154,61 +158,68 @@ if [ $DEGMIN = 0 ]; then
 	echo "$LON"
 	exit
     fi
-    echo "  $LAT   $LON"
+    echo "$LAT $LON"
     if [ $DEGDEC = 1 ]; then
 	exit
     fi
 fi
 
-degdec2NSdegdec() {
-    case "$1" in
-    -*)	echo "$3$1" | tr -d -- -;;
-    *)	echo "$2$1";;
-    esac
-}
-
-degdec2NSmindec() {
-    case "$1" in
-    -*)	echo "$3$(degdec2mindec $1)" | tr -d -- -;;
-    *)	echo "$2$(degdec2mindec $1)";;
-    esac
-}
-
-degdec2NSdms() {
-    case "$1" in
-    -*)	echo "$3$(degdec2dms $1)" | tr -d -- -;;
-    *)	echo "$2$(degdec2dms $1)";;
-    esac
+#
+#       Convert DegDec to DegDec with NS/EW
+#
+degdec2degdec() {
+    if [ "$2" = "" ]; then
+	error "No sym given for degdec2degdec"
+    fi
+    awk -v v=$1 -v sym=$2 \
+    '
+    function abs(x)     { return (x>=0) ? x : -x }
+    BEGIN {
+	printf "%s%09.6f\n", \
+	    (v >= 0.0) ? substr(sym, 1, 1) : substr(sym, 2, 1), \
+	    abs(v)
+    }'
 }
 
 #
-#       Convert DegDec to dms
+#       Convert DegDec to dms with optional NS/EW
 #
 degdec2dms() {
-    awk -v v=$1 \
-        'BEGIN{
+    awk -v v=$1 -v sym=$2 \
+	'
+	function abs(x)     { return (x>=0) ? x : -x }
+        BEGIN {
 	    d=int(v)
 	    f=(v-d)*60
 	    if(f<0)f=-f
 	    m=int(f)
 	    s=(f-m)*60
-	    printf "%d %d'\'' %f\"\n", d, m, s
+	    if (sym == "")
+		printf "%d %d'\'' %f\"\n", d, m, s
+	    else
+		printf "%s%02d %d'\'' %f\"\n", \
+		    (v >= 0.0) ? substr(sym, 1, 1) : substr(sym, 2, 1), \
+		    abs(d), m, s
 	}'
 }
 
 if [ $DEGMIN = 0 ]; then
-    echo "$(degdec2NSdegdec $LAT N S) $(degdec2NSdegdec $LON E W)"
-    echo "$(degdec2NSdms $LAT N S) $(degdec2NSdms $LON E W)"
+    echo "$(degdec2degdec $LAT NS) $(degdec2degdec $LON EW)"
+    echo "$(degdec2dms $LAT NS) $(degdec2dms $LON EW)"
 else
     if [ $DOLAT = 1 -a $DOLON = 1 ]; then
-	echo "$(degdec2NSmindec $LAT N S)" "$(degdec2NSmindec $LON E W)"
+	echo "$(degdec2mindec $LAT NS)" "$(degdec2mindec $LON EW)"
 	exit
     elif [ $DOLAT = 1 ]; then
-	echo "$(degdec2NSmindec $LAT N S)"
+	echo "$(degdec2mindec $LAT NS)"
 	exit
     elif [ $DOLON = 1 ]; then
-	echo "$(degdec2NSmindec $LON E W)"
+	echo "$(degdec2mindec $LON EW)"
 	exit
     fi
 fi
-echo "$(degdec2NSmindec $LAT N S) $(degdec2NSmindec $LON E W)"
+echo "$(degdec2mindec $LAT NS) $(degdec2mindec $LON EW)"
+
+if [ $MAP = 1 ]; then
+    geo-map $(degdec2mindec $LAT NS) $(degdec2mindec $LON EW)
+fi

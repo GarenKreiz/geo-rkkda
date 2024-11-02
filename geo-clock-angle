@@ -108,13 +108,14 @@ function abs(x){return ((x < 0.0) ? -x : x)}
 	    {
 		if (first)
 		{
-		    printf "TIME\t\tHOURS\t\tMINUTES\t\t(360+M-H)%360\n"
+		    printf "TIME\t\tHOURS\t\tMINUTES \tSECONDS\t\t(360+M-H)%360\n"
 		    first = 0
 		}
 		thetah = (h + m/60.0 + s/3600.0) * 30
 		thetam = (m + s/60.0) * 6
-		printf "%8s	%.7f	%.7f	%.7f\n",
-		    text, thetah, thetam, (360+thetam-thetah)%360
+		thetas = 6 * s
+		printf "%8s\t%10.7f\t%10.7f\t%10.7f\t%.7f\n",
+		    text, thetah, thetam, thetas, (360+thetam-thetah)%360
 	    }
 	    else
 	    {

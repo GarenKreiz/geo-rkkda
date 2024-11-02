@@ -1,0 +1,91 @@
+#!/bin/sh
+
+PROGNAME="$0"
+
+usage() {
+	cat <<EOF
+NAME
+    `basename $PROGNAME` - Convert lat/lon to mapcode
+
+SYNOPSIS
+    `basename $PROGNAME` [options]
+
+DESCRIPTION
+    Convert lat/lon to mapcode
+
+OPTIONS
+    -D lvl	Debug level
+
+EXAMPLE
+    Convert to mapcode:
+
+	$ ll2mapcode n44.56.666 w93.30.444
+	US-MN 4K.MDW
+	US-MN BZ1.XRS
+	US-MN PBV8.R0S
+	US-MN RP8Y.W3KX
+	CA-ON 3DNF.B6G
+	CA-ON JXNN.B5MD
+	USA RP8Y.W3KX
+	CAN JXNN.B5MD
+	T7FBR.KBVJ
+
+SEE ALSO
+    https://www.mapcode.com/
+
+    https://github.com/mapcode-foundation/mapcode-cpp
+EOF
+
+	exit 1
+}
+
+#
+#       Report an error and exit
+#
+error() {
+	echo "`basename $PROGNAME`: $1" >&2
+	exit 1
+}
+
+debug() {
+	if [ $DEBUG -ge $1 ]; then
+	    echo "`basename $PROGNAME`: $2" >&2
+	fi
+}
+
+#
+#       Process the options
+#
+DEBUG=0
+#unset OPTIND
+while getopts "D:h?" opt
+do
+	case $opt in
+	D)	DEBUG="$OPTARG";;
+	h|\?)	usage;;
+	esac
+done
+shift `expr $OPTIND - 1`
+
+if [ $# = 0 ]; then
+    usage
+fi
+
+#
+#	Main Program
+#
+if ! which mapcode >/dev/null 2>&1; then
+    debug 0 "You need to install 'mapcode'."
+    debug 0 ""
+    debug 0 "See https://github.com/mapcode-foundation/mapcode-cpp"
+    debug 0 ""
+    debug 0 "$ git clone https://github.com/mapcode-foundation/mapcode-cpp.git"
+    debug 0 "$ cd mapcode-cpp/mapcodelib"
+    debug 0 "$ gcc -O -c mapcoder.c"
+    debug 0 "$ cd ../utility"
+    debug 0 "$ gcc -O mapcode.cpp -o mapcode ../mapcodelib/mapcoder.o"
+    debug 0 "$ cp mapcode \$BIN"
+    error ""
+fi
+
+mapcode -e `geo-coords -lL $*`

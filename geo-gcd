@@ -1,0 +1,106 @@
+#!/bin/sh
+
+PROGNAME="$0"
+
+usage() {
+	cat <<EOF
+NAME
+    `basename $PROGNAME` - GCD and LCM of N numbers
+
+SYNOPSIS
+    `basename $PROGNAME` [options] [int1 int2 [int3 ...]]
+
+DESCRIPTION
+    Greatest Common Divisor and Least Common Multiple of N numbers.
+    Takes the input from the command line or stdin.
+
+OPTIONS
+    -D lvl	Debug level
+
+EXAMPLE
+    $ geo-gcd 126126 162
+    18 1135134
+
+    $ geo-gcd 126126 162 99
+    9 1135134
+
+    $ geo-gcd 
+    31 567 
+    1 17577
+    1680 538359
+    3 301481040
+    680 3332
+    68 33320
+    52254 81
+    9 470286
+EOF
+
+	exit 1
+}
+
+#
+#       Report an error and exit
+#
+error() {
+	echo "`basename $PROGNAME`: $1" >&2
+	exit 1
+}
+
+debug() {
+	if [ $DEBUG -ge $1 ]; then
+	    echo "`basename $PROGNAME`: $2" >&2
+	fi
+}
+
+#
+#       Process the options
+#
+DEBUG=0
+#unset OPTIND
+while getopts "D:h?" opt
+do
+	case $opt in
+	D)	DEBUG="$OPTARG";;
+	h|\?)	usage;;
+	esac
+done
+shift `expr $OPTIND - 1`
+
+doit () {
+    awk '
+    function gcd(m, n) {
+	r=1
+	do
+	{
+	    r = m % n
+	    m = n
+	    n = r
+	} while (r != 0);
+	return m
+    }
+    function lcm(m, n) {
+	return (m*n)/gcd(m,n)
+    }
+    {
+	g = gcd($1, $2)
+	l = lcm($1, $2)
+	for (i = 3; i <= NF; ++i)
+	{
+	    g = gcd(g, $i)
+	    l = lcm(l, $i)
+	}
+	print g, l
+    }
+    '
+}
+
+#
+#	Main Program
+#
+if [ $# -ge 2 ]; then
+    echo "$*" | doit
+elif [ $# = 0 ]; then
+    doit
+else
+    usage
+fi

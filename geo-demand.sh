@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-#	$Id: geo-demand.sh,v 1.114 2017/03/31 20:22:23 rick Exp $
+#	$Id: geo-demand.sh,v 1.119 2021/01/04 12:16:24 rick Exp $
 #
 
 #
@@ -114,7 +114,9 @@ OPTIONS
 			[~]food, [~]wirelessbeacon, [~]partnership, 
 			[~]field_puzzle, [~]hiking, [~]seasonal, 
 			[~]touristok, [~]treeclimbing, [~]frontyard, 
-			[~]teamwork, [~]geotour, 
+			[~]teamwork, [~]geotour, [~]powertrail, 
+			[~]hqsolutionchecker, [~]bonuscache, 
+			[~]challengecache, 
 
 			~keyword means NOT keyword.
 
@@ -297,7 +299,7 @@ do
 	AA="${CTL}ctlAttrInclude%24dtlAttributeIcons%24ctl"
 	for a in $attrs; do
 	    case "$a" in
-	    # BEGIN 2017/03/31 src2attr -d ...
+	    # BEGIN 2020/09/01 src2attr -d ...
 	    scenic)                ATTRS="$ATTRS -d${AA}00%24hidInput=1";;
 	    ~scenic)               ATTRS="$ATTRS -d${AA}00%24hidInput=2";;
 	    dogs)                  ATTRS="$ATTRS -d${AA}01%24hidInput=1";;
@@ -430,7 +432,15 @@ do
 	    ~teamwork)             ATTRS="$ATTRS -d${AA}64%24hidInput=2";;
 	    geotour)               ATTRS="$ATTRS -d${AA}65%24hidInput=1";;
 	    ~geotour)              ATTRS="$ATTRS -d${AA}65%24hidInput=2";;
-	    # END 2017/03/31 src2attr -d ...
+	    powertrail)            ATTRS="$ATTRS -d${AA}66%24hidInput=1";;
+	    ~powertrail)           ATTRS="$ATTRS -d${AA}66%24hidInput=2";;
+	    hqsolutionchecker)     ATTRS="$ATTRS -d${AA}67%24hidInput=1";;
+	    ~hqsolutionchecker)    ATTRS="$ATTRS -d${AA}67%24hidInput=2";;
+	    bonuscache)            ATTRS="$ATTRS -d${AA}68%24hidInput=1";;
+	    ~bonuscache)           ATTRS="$ATTRS -d${AA}68%24hidInput=2";;
+	    challengecache)        ATTRS="$ATTRS -d${AA}69%24hidInput=1";;
+	    ~challengecache)       ATTRS="$ATTRS -d${AA}69%24hidInput=2";;
+	    # END 2020/09/01 src2attr -d ...
 	    *)				usage;;
 	    esac
 	done
@@ -742,7 +752,7 @@ DateTimeEnd_year=`$date -d "$timeEnd" +"%Y" `
 # Clamp dates to range permitted by gc.com (else you get a PQ you can't remove)
 #
 CLAMP_MIN=2000
-CLAMP_MAX=2020
+CLAMP_MAX=2022
 if ((DateTimeBegin_year < $CLAMP_MIN)); then
     DateTimeBegin_month=1
     DateTimeBegin_day=1
@@ -756,6 +766,12 @@ if ((DateTimeEnd_year > $CLAMP_MAX)); then
     DateTimeEnd_month=12
     DateTimeEnd_day=31
     DateTimeEnd_year=$CLAMP_MAX
+fi
+if [ $DateTimeEnd_year -eq $CLAMP_MAX ]; then
+    thisyear=`$date +"%Y"`
+    if [ $thisyear = $CLAMP_MAX ]; then
+	debug 0 "Warning: Clamp max year $CLAMP_MAX needs to be adjusted!"
+    fi
 fi
 
 #

@@ -103,7 +103,7 @@ outfmt(double coord, char *lets)
 	{
 	    int		deg = coord;
 	    double	min = fabs(coord - deg) * 60.0;
-	    printf("%c%d %s%.3f",
+	    printf("%c%02d %s%.3f",
 		    let, abs(deg), (min < 10) ? "0" : "", min);
 	}
 	break;
@@ -111,7 +111,7 @@ outfmt(double coord, char *lets)
 	{
 	    int		deg = coord;
 	    double	min = fabs(coord - deg) * 60.0;
-	    printf("%c%d.%s%.3f",
+	    printf("%c%02d.%s%.3f",
 		    let, abs(deg), (min < 10) ? "0" : "", min);
 	}
 	break;

@@ -15,6 +15,7 @@ DESCRIPTION
 
 OPTIONS
     -p pat	grep for 'pat' instead of numbers
+    -s		Remove the sed stuff
     -D lvl	Debug level
 
 EXAMPLE
@@ -46,6 +47,25 @@ EXAMPLE
 	<em>e
 	<em>n
 
+    Grep using pattern and remove the sed stuff:
+
+	$ geo-text2numbers -p 'em>[^<]*</em' < GC8V3WN.html
+	em>fi</em
+	em>n</em
+	em>d</em
+	em>T</em
+	em>He</em
+	em>l</em
+	em>o</em
+	em>c</em
+	em>a</em
+	em>ti</em
+	em>on</em
+	$ geo-text2numbers -s -p 'em>[^<]*</em' < GC8V3WN.html
+	findTHelocation
+
+	$ geo-text2numbers -s -p '<em>.' < GC6KWN9.html
+	nthreeseventWo6eight0eigHt1Two6556nine2
 EOF
 
 	exit 1
@@ -70,10 +90,12 @@ debug() {
 #
 DEBUG=0
 PAT=
-while getopts "p:D:h?" opt
+SED=0
+while getopts "p:sD:h?" opt
 do
 	case $opt in
 	p)	PAT="$OPTARG";;
+	s)	SED=1;;
 	D)	DEBUG="$OPTARG";;
 	h|\?)	usage;;
 	esac
@@ -91,5 +113,17 @@ if [ "$PAT" = "" ]; then
     egrep -o --color \
     'north|east|south|west|zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eightteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million|nought|nil'
 else
-    cat $FILES | grep -o "$PAT"
+    if [ $SED = 1 ]; then
+	initial=$( echo "$PAT" |
+	    sed -e 's/\..*//' -e 's/\[.*//' )
+	final=$( echo "$PAT" |
+	    sed -e 's/^.*\.//' -e 's/^.*\*//' -e 's/^.*\]//' )
+	cat $FILES |
+	    grep -o "$PAT" |
+	    sed -e "s/$initial//" -e "s@$final@@" |
+	    tr -d '\012'
+	echo
+    else
+	cat $FILES | grep -o "$PAT"
+    fi
 fi

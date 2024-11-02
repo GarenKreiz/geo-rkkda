@@ -145,8 +145,9 @@ typedef struct pdb_rec
 #define	UNLIMITED	999999999	// Well, not really :-)
 
 static inline void
-beswap16(short *sp)
+beswap16(char *cp)
 {
+    short	*sp = (short *) cp;
     char	*p = (char *) sp;
     char	tmp;
     const short	num = 0x1122;
@@ -160,8 +161,9 @@ beswap16(short *sp)
 }
 
 static inline void
-beswap32(int *sp)
+beswap32(char *cp)
 {
+    int		*sp = (int *) cp;
     char	*p = (char *) sp;
     char	tmp;
     const long	num = 0x11223344;
@@ -476,12 +478,12 @@ convert_rec0(FILE *fp, char *name, int recno, int recsize)
 	if (rc == EOF)
 		return error(-1, "Short record %d in file '%s'\n", recno, name);
 
-	beswap32(&rec0.lon1); Lon1 = rec0.lon1 / LONDIV;
-	beswap32(&rec0.lat1); Lat1 = rec0.lat1 / LATDIV;
-	beswap32(&rec0.lon2); Lon2 = rec0.lon2 / LONDIV;
-	beswap32(&rec0.lat2); Lat2 = rec0.lat2 / LATDIV;
-	beswap32(&rec0.lonD); LonD = rec0.lonD / LONDIV2;
-	beswap32(&rec0.latD); LatD = rec0.latD / LATDIV2;
+	beswap32((char *)&rec0.lon1); Lon1 = rec0.lon1 / LONDIV;
+	beswap32((char *)&rec0.lat1); Lat1 = rec0.lat1 / LATDIV;
+	beswap32((char *)&rec0.lon2); Lon2 = rec0.lon2 / LONDIV;
+	beswap32((char *)&rec0.lat2); Lat2 = rec0.lat2 / LATDIV;
+	beswap32((char *)&rec0.lonD); LonD = rec0.lonD / LONDIV2;
+	beswap32((char *)&rec0.latD); LatD = rec0.latD / LATDIV2;
 
 	if (RectOnly)
 	{
@@ -498,7 +500,7 @@ convert_rec0(FILE *fp, char *name, int recno, int recsize)
 			Lat2, Lon2,
 			LatD, LonD);
 
-	beswap32((int *) &rec0.expcode);
+	beswap32((char *) &rec0.expcode);
 	debug(2, "%s: %s (%08x, %lu)\n",
 			rec0.name,
 			rec0.demo ? "Demo" : "Paid",
@@ -585,12 +587,12 @@ convert_rec(FILE *ofp, FILE *fp, char *name, int recno, int recsize)
 	}
 	recsize -= 12;
 
-	beswap16((short *) &enthdr.unk1);
-	beswap16((short *) &enthdr.unk2);
-	beswap16((short *) &enthdr.lon1d);
-	beswap16((short *) &enthdr.lat1d);
-	beswap16((short *) &enthdr.lon2d);
-	beswap16((short *) &enthdr.lat2d);
+	beswap16((char *) &enthdr.unk1);
+	beswap16((char *) &enthdr.unk2);
+	beswap16((char *) &enthdr.lon1d);
+	beswap16((char *) &enthdr.lat1d);
+	beswap16((char *) &enthdr.lon2d);
+	beswap16((char *) &enthdr.lat2d);
 
 	lat = Lat1 + enthdr.lat1d/LATDIV2;
 	lon = Lon1 + enthdr.lon1d/LONDIV2;
@@ -788,7 +790,7 @@ convert(FILE *ofp, FILE *fp, char *name)
 	}
 	fileoff = sizeof(pdbhdr);
 
-	beswap16(&pdbhdr.numRecords);
+	beswap16((char*) &pdbhdr.numRecords);
 
 	pdbrec = malloc(pdbhdr.numRecords * sizeof(*pdbrec));
 	if (!pdbrec)
@@ -807,7 +809,7 @@ convert(FILE *ofp, FILE *fp, char *name)
 	}
 	fileoff += sizeof(*pdbrec) * pdbhdr.numRecords;
 
-	beswap32(&pdbrec[0].offset);
+	beswap32((char *) &pdbrec[0].offset);
 	for (i = 0; i < pdbhdr.numRecords; ++i)
 	{
 		int	size;
@@ -843,7 +845,7 @@ convert(FILE *ofp, FILE *fp, char *name)
 			size = UNLIMITED;
 		else
 		{
-			beswap32(&pdbrec[i+1].offset);
+			beswap32((char *) &pdbrec[i+1].offset);
 			size = pdbrec[i+1].offset - pdbrec[i].offset;
 		}
 

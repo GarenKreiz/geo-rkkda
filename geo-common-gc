@@ -1,7 +1,7 @@
 ##############################################################################
 # begin #include "geo-common-gc"
 # 
-# $Id: geo-common-gc,v 1.365 2018/10/13 10:09:06 rick Exp $
+# $Id: geo-common-gc,v 1.368 2020/07/23 21:05:00 rick Exp $
 ##############################################################################
 
 #
@@ -50,10 +50,12 @@ GEOSLEEP=${GEOSLEEP:-8}
 #
 #	Common options handling
 #
+# -b option does not work with new lists...
+#	-b bookmark	Use list "bookmark" [none]
+#
 gc_usage() {
 	cat <<EOF
 OPTIONS
-	-b bookmark	Use list "bookmark" [none]
 	-q query	geo-nearest: Use PQ list "query" [none]
 	-q search	geo-newest: Use search "search" [none]
 	-c		Remove cookie file when done
@@ -1428,6 +1430,8 @@ gc_query() {
 			fi
 		    fi
 		    
+		    #debug 0 "ZZZZ $cachepage"
+		    
 		    # 01/07/12: remove soc's!
 		    if grep -q 'alt="Premium Members only"' $cachepage; then
 			continue
@@ -1438,6 +1442,10 @@ gc_query() {
 		    fi
 		    # 02/12/16: remove soc's
 		    if grep -q 'class="pmo-banner"' $cachepage; then
+			continue
+		    fi
+		    # 05/11/19: remove soc's
+		    if grep -q 'class="premium-upgrade-widget"' $cachepage; then
 			continue
 		    fi
 		    # 04/28/17: remove archived

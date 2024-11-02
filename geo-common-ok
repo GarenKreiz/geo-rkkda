@@ -21,6 +21,8 @@ OKMYSTERY=/dev/null
 #
 #	Global variables
 #
+COOKIE_FILE=$HOME/.geo/ok_cookies
+NOCOOKIES=0
 FOUND=1
 USERFOUND=1
 BABELFLAGS=
@@ -34,7 +36,7 @@ VARTIME=found
 GEOSLEEP=${GEOSLEEP:-5}
 SINCE=
 CROSSLIST=0
-OKBASE="http://www.opencaching.us"
+OKBASE="https://www.opencaching.us"
 OKCC=US
 OKCC=
 
@@ -81,10 +83,12 @@ Options:
 
 Defaults can also be set with variables in file \$HOME/.georc:
 
-	LAT=latitude;       LON=logitude;
-	NUM=num;            OUTFMT=format;       BABELFLAGS=-s;
-	SQLUSER=gast;       SQLPASS=gast;        SQLDB=geoinfo;
-	OKBASE="http://www.opencaching.us";      OKCC=;
+	LAT=latitude;        LON=logitude;
+	NUM=num;             OUTFMT=format;       BABELFLAGS=-s;
+	SQLUSER=gast;        SQLPASS=gast;        SQLDB=geoinfo;
+	OKBASE="$OKBASE";      OKCC=;
+	OK_USERNAME=username OK_EMAIL=username@gmail.com
+        OK_PASSWORD=password
 EOF
 	# -u username	Username for http://www.opencaching.us
 	# -p password	Password for http://www.opencaching.us
@@ -281,10 +285,17 @@ ok_gpx2gpx () {
 	}
     }
     /<groundspeak:type>Found it/ { found = 1 }
+    /<type>Found it<.type>/ { found = 1 }
     /<groundspeak:type>Found/ { found = 1 }
+
     /<groundspeak:type>Multi-cache/ { type = "multi"}
     /<groundspeak:type>Unknown Cache/ { type = "unknown" }
     /<groundspeak:type>Virtual/ { type = "virtual" }
+    /<type>Geocache.Unknown Cache<.type>/ { type = "unknown" }
+    /<type>Geocache.Multi-cache Cache<.type>/ { type = "multi" }
+    /<type>Geocache.Virtual Cache<.type>/ { type = "virtual" }
+    /<type>Geocache.Webcam Cache<.type>/ { type = "webcam" }
+
     /^$/ {next}
     ingpx == 0 {
 	if ($0 ~ "<wpt ")
@@ -342,7 +353,58 @@ ok_gpx2gpx () {
     '
 }
 
+ok_login() {
+    #
+    # 06/11/2019: doesn't work for *.fr and *.ro, yet
+    #
+    _username=`urlencode "$1"`
+    _password=`urlencode "$2"`
+
+    [ "$_username" != dummy ] || error "You need a opencaching username"
+    [ "$_password" != dummy ] || error "You need a opencaching password"
+
+    LOGINPAGE=${TMP}-login.html
+    CRUFT="$CRUFT $LOGINPAGE"
+
+    #
+    #   Now post the login
+    #
+    URL="$OKBASE"
+    case "$OKBASE" in
+    *.fr)	URL="$URL/login.php";;
+    *)		URL="$URL/UserAuthorization/login";;
+    esac
+    #
+    #	Use -k (insecure) on 12/25/20
+    #
+    # dbgcmd curl $CURL_OPTS -s -A "$UA" -b$COOKIE_FILE -c$COOKIE_FILE \
+    dbgcmd curl $CURL_OPTS -k -s -A "$UA" -b$COOKIE_FILE -c$COOKIE_FILE \
+        -e "$URL" \
+        -demail="$_username" \
+        -dpassword="$_password" \
+        -dtarget="/" \
+        -daction="login" \
+        -dLogMeIn="Connexion" \
+        -L "$URL" > $LOGINPAGE
+    if [ ! -s $LOGINPAGE ]; then
+        error "curl: returned /dev/null for '$LOGINPAGE'"
+    fi
+}
+
 ok_query() {
+    if [ $DEBUG -gt 0 ]; then
+        TMP=/tmp/geo
+    else
+        TMP=/tmp/geo$$
+    fi
+
+    case "$OKBASE" in
+    *.fr)	ok_login "$OK_EMAIL" "$OK_PASSWORD";;
+    *.ro)	ok_login "$OK_EMAIL" "$OK_PASSWORD";;
+    *.us)	ok_login "$OK_EMAIL" "$OK_PASSWORD";;
+    *)		ok_login "$OK_USERNAME" "$OK_PASSWORD";;
+    esac
+
     case "$OKBASE" in
     *.no)       OKBASE=http://www.opencaching.se;;
     esac
@@ -355,9 +417,11 @@ ok_query() {
     esac
     OKURL="$OKURL&f_inactive=1&f_ignored=1&f_userfound=1&f_userowner=1"
     OKURL="$OKURL&f_watched=0&f_geokret=0"
-    if [ "$OKCC" != "" ]; then
-	OKURL="$OKURL&country=$OKCC"
+    OKURL="$OKURL&country=$OKCC"
+    if [ "$REGION" = "" ]; then
+	OKURL="$OKURL&region="
     fi
+
     # cachetype: stuff that's broken!
     case "$OKBASE" in
     *.de)	;;
@@ -368,6 +432,7 @@ ok_query() {
     *.no)	;;
     *.it)	;;
     *.pl)	OKURL="$OKURL&cachetype=1111111111";;
+    *.ro)	OKURL="$OKURL&cachetype=111111111";;
     *)		OKURL="$OKURL&cachetype=1111111111111";;
     esac
 
@@ -386,7 +451,7 @@ ok_query() {
     fi
 
     OKURL="$OKURL&cachesize_1=1&cachesize_2=1&cachesize_3=1&cachesize_4=1"
-    OKURL="$OKURL&cachesize_5=1&cachesize_6=1&cachesize_7=1"
+    OKURL="$OKURL&cachesize_5=1&cachesize_6=1&cachesize_7=1&cachesize_8=1"
     OKURL="$OKURL&cachevote_1=-3&cachevote_2=3.000&cachenovote=1"
     OKURL="$OKURL&cachedifficulty_1=1&cachedifficulty_2=5"
     OKURL="$OKURL&cacheterrain_1=1&cacheterrain_2=5"
@@ -409,6 +474,9 @@ ok_query() {
     CRUFT="$CRUFT $OUTWAY"
     CRUFT="$CRUFT $GPXFILE1"
     CRUFT="$CRUFT $GPXFILE2"
+    if [ $NOCOOKIES = 1 ]; then
+        CRUFT="$CRUFT $COOKIE_FILE"
+    fi
 
     if [ "$NUM" -lt 1 -o "$NUM" -gt 5000 ]; then
 	error "limit must be 1-5000"
@@ -446,7 +514,7 @@ ok_query() {
 	SEARCH="$SEARCH&bbox=$south,$west,$north,$east"
     fi
 
-    dbgcmd curl $CURL_OPTS -s -A "$UA" -L "$OKURL&$SEARCH" > $GPXFILE1
+    dbgcmd curl $CURL_OPTS -k -s -b $COOKIE_FILE -A "$UA" -L "$OKURL&$SEARCH" > $GPXFILE1
     # dbgcmd curl $CURL_OPTS -s -A "$UA" "http://www.opencaching.us/search.php?searchto=searchbydistance&showresult=1&expert=0&output=GPXGC&sort=bydistance&f_inactive=1&f_ignored=1&f_userfound=1&f_userowner=1&f_watched=0&f_geokret=0&country=US&cachetype=1111111111111&cache_attribs=&cache_attribs_not=&cachesize_1=1&cachesize_2=1&cachesize_3=1&cachesize_4=1&cachesize_5=1&cachesize_6=1&cachesize_7=1&cachevote_1=-3&cachevote_2=3.000&cachenovote=1&cachedifficulty_1=1&cachedifficulty_2=5&cacheterrain_1=1&cacheterrain_2=5&cacherating=0&latNS=N&lat_h=44&lat_min=56.850&lonEW=W&lon_h=93&lon_min=29.465&distance=500&unit=sm" > $GPXFILE1
 
     if [ $FOUND = 0 ]; then
