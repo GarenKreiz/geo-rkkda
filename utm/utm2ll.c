@@ -63,6 +63,7 @@ usage(void)
 "	utm2ll [options] zone [nz] easting northing\n"
 "	utm2ll [options] zone_nz E easting N northing\n"
 "\n"
+"DESCRIPTION\n"
 "	Convert UTM to WGS-84 DegDec latitude/longitude.\n"
 "\n"
 "OPTIONS\n"
@@ -185,6 +186,31 @@ main(int argc, char *argv[])
 
 	argc -= optind;
 	argv += optind;
+
+	if (argc == 0)
+	{
+	    char	buf[256];
+	    char	opts[256];
+	    char	cmd[256*2];
+	    int		rc;
+	    if (isatty(0))
+		printf("Type the utm2ll command line(s):\n");
+	    opts[0] = 0;
+	    if (LatOnly) strcat(opts, "-l ");
+	    if (LonOnly) strcat(opts, "-L ");
+	    if (Fmt == FMT_DEGDEC) strcat(opts, "-odegdec ");
+	    if (Fmt == FMT_MINDEC) strcat(opts, "-omindec ");
+	    if (Fmt == FMT_RICKDEC) strcat(opts, "-orickdec ");
+	    if (Fmt == FMT_DMS) strcat(opts, "-odms ");
+	    while (fgets(buf, sizeof(buf), stdin))
+	    {
+		rc = snprintf(cmd, sizeof(cmd), "utm2ll %s %s", opts, buf);
+		if (rc < 0)
+		    error(1, "snprintf failed");
+		system(cmd);
+	    }
+	    exit(0);
+	}
 
 	if (argc < 3)
 	    usage();

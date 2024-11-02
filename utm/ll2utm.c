@@ -59,9 +59,13 @@ usage(void)
 "	ll2utm - Convert lat/lon to Universal Transverse Mercator (UTM) format\n"
 "SYNOPSYS\n"
 "	ll2utm [options] lat lon\n"
+"	ll2utm [options]\n"
 "\n"
+"DESCRIPTION\n"
 "	Convert WGS-84 latitude/longitude to UTM.\n"
 "	See examples for the input formats which are acceptable.\n"
+"\n"
+"	The second form of the command reads from stdin.\n"
 "\n"
 "OPTIONS\n"
 "       -e          Print easting only.  May be combined with -n.\n"
@@ -215,6 +219,27 @@ main(int argc, char *argv[])
 
     argc -= optind;
     argv += optind;
+
+    if (argc == 0)
+    {
+	char	opts[256];
+	char	cmd[512];
+	int	rc;
+
+	if (isatty(0))
+	    printf("Type the ll2utm command line(s):\n");
+	opts[0] = 0;
+	if (Easting) strcat(opts, "-e ");
+	if (Northing) strcat(opts, "-n ");
+	while (fgets(buf, sizeof(buf), stdin))
+	{
+	    rc = snprintf(cmd,sizeof(cmd), "ll2utm %s %s", opts, buf);
+	    if (rc < 0)
+		error(1, "snprintf failed");
+	    system(cmd);
+	}
+	exit(0);
+    }
 
     if (argc < 2)
     {

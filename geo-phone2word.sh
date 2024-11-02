@@ -52,6 +52,9 @@ EXAMPLE
 	32628193
 	twentysixfortysixthreesevenoneeightyzerotwoseventwenty
 
+	$ geo-phone2word -c 2228828777666//22244466222666//8866/666
+	cuatro cinco uno
+
 SEE ALSO
 	\$HOME/lib/geo/english.dic
 
@@ -100,7 +103,7 @@ else
 fi
 
 one_word_per_line() {
-    tr -cs "[:alnum:]" "\n"
+    tr -cs "[:alnum:]/" "\n"
 }
 
 docount() {
@@ -153,6 +156,8 @@ docount() {
     /999/ { printf "y"; next}
     /99/ { printf "x"; next}
     /9/ { printf "w"; next}
+    /\/\// { printf "%s", " "; next }
+    /\// { printf "%s", ""; next }
     { printf "%s", $0 }
     END { printf "\n" }
     '
