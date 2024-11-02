@@ -28,33 +28,36 @@ SYNOPSIS
     `basename $PROGNAME` -n <list-of-pictures.txt> 
 
 DESCRIPTION
-    Add pictures to geocaching logs, setting the correct date
+    Add pictures to geocaching logs, setting the correct date.
+
+    The <list-of-pictures.txt> file contains lines of the form:
+
+    <YYYY/MM/DD>|<LogID>|<filename-of-image>|<caption>|<description>
+
+    The pictures are associated to logs in the same order as the lines in the file.
 
     Requires:
         A member login at:
 	     http://www.geocaching.com
 
 	curl		http://curl.haxx.se/
-EOF
-    gc_usage
-    cat << EOF
 
+DEFAULTS
+	Defaults can be set with variables in file \$HOME/.georc:
+			 PASSWORD=password;
+			 USERNAME=username;
+  
 EXAMPLES
 
-    The <list-of-pictures.txt> file contains lines of the form 
-    
-    <YYYY/MM/DD>|<LogID>|<filename-of-image>|<caption>|<description>
+    Line to add one picture to the GLPT5Y98 log:
 
-    For example
     2016/11/20|GLPT5Y98|GC/2016_1120_121859AA.jpg|Stade en travaux|
-
-    The pictures are associated to logs in the same order as the lines in the file
 
 FILES
     ~/.georc
 
 SEE ALSO
-    $WEBHOME
+    https://github.com/GarenKreiz/geo-rkkda
 EOF
 
 	exit 1
