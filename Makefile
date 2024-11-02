@@ -16,6 +16,13 @@ ifeq ($(UNAME),FreeBSD)
     SED=gsed
 endif
 
+UNAMEO := $(shell uname -o)
+ifeq ($(UNAMEO),Msys)
+	LREGEX=-lregex
+else
+	LREGEX=
+endif
+
 NULL=
 SHELLS=	geo-nearest geo-code geo-count geo-usernum geo-waypoint \
 	geo-poi \
@@ -556,6 +563,10 @@ geo-images: images Makefile
 
 calcxy: calcxy.c
 	$(CC) calcxy.c -o $@ -lm
+
+pgpdb2txt: pgpdb2txt.c
+	$(CC) pgpdb2txt.c -o $@ $(LREGEX)
+
 
 CROSSWORD_LANGS=french spanish ngerman
 

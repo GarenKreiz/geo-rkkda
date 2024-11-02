@@ -11,12 +11,16 @@
 #include <unistd.h>
 
 #ifdef REG_BASIC
+	#define regcompiled(rep) 1
+#else
+#ifdef REG_BASIC
 	#define regcompiled(rep) (rep)->re_g
 #else
 #ifdef __REPB_PREFIX
 	#define regcompiled(rep) (rep)->__buffer
 #else
 	#define regcompiled(rep) (rep)->buffer
+#endif
 #endif
 #endif
 
