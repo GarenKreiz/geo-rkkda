@@ -637,7 +637,7 @@ clean:
 	rm -f *.1 *.7
 	rm -f manual.pdf
 
-MANPAGES1=$(SHELLS:%=%.1) $(CPROGS:%=%.1) utm/ll2utm.1 utm/utm2ll.1
+MANPAGES1=$(SHELLS:%=%.1) $(CPROGS:%=%.1) ll2utm.1 utm2ll.1
 MANPAGES7=geo-countries-states.7
 MANPAGES=$(MANPAGES1) $(MANPAGES7)
 GROFF=groff
@@ -654,10 +654,10 @@ geo-countries-states.7: geo-countries-states.7in states.db countries.db Makefile
 	    sed '/^#/d' > $@ || { rm -f $@; exit 1; }; chmod -x-w $@
 
 # Next 4 lines are due to Cygwin!
-utm/ll2utm.1: utm/ll2utm
+ll2utm.1: utm/ll2utm
 	./$< -? 2>&1 | LC_ALL=C ./txt2man -t $< -s 1 >$@
 
-utm/utm2ll.1: utm/utm2ll
+utm2ll.1: utm/utm2ll
 	./$< -? 2>&1 | LC_ALL=C ./txt2man -t $< -s 1 >$@
 # End
 
@@ -671,6 +671,17 @@ install-man: man
 	install $(MANPAGES7) $(MANDIR)/man7
 	install -d -m 755 $(DOCDIR)
 	install manual.pdf $(DOCDIR)
+
+uninstall-man:
+	if [ -d $(MANDIR)/man1/ ]; then \
+	    cd $(MANDIR)/man1 && rm -r $(MANPAGES1); \
+	fi
+	if [ -d $(MANDIR)/man7/ ]; then \
+	    cd $(MANDIR)/man7 && rm -r $(MANPAGES7); \
+	fi
+	if [ -d $(DOCDIR) ]; then \
+	    rm -r $(DOCDIR); \
+	fi
 
 manual.pdf: $(MANPAGES)
 	$(GROFF) -t -man `ls $(MANPAGES) | sort` | ps2pdf - $@
