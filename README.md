@@ -28,6 +28,7 @@ geo-gid -?
 ```
 
 ### Tools for accessing gc.com...
+
 	geo-found	List caches found (by you or someone else)
 	geo-nearest	List the nearest caches to a location
 	geo-newest	List the newest caches in a state
@@ -57,6 +58,7 @@ geo-gid -?
 	geo-uniq	Unique the tabsep database
 
 ### Tools for accessing gc.com requiring a Premium membership...
+
 	geo-gid		Retrieve cache info by GCxxxx waypoint name
 	geo-gpx		Retrieve GPX file by GCxxxx waypoint name
 	geo-demand	Request an immediate pocket query email
@@ -68,21 +70,25 @@ geo-gid -?
 	geo-correct-coords Correct the coords of cache(s)
 
 ### Tools for accessing opencaching.com...
+
 	oc-nearest	List the nearest caches to a location
 	oc-newest	List the newest caches in a state
 			EXPERIMENTAL, subject to drastic changes
 
 ### Tools for accessing opencaching.us (and .nl, .de,...) ...
+
 	ok-nearest	List the nearest caches to a location
 	ok-newest	List the newest caches in a state
 			EXPERIMENTAL, subject to drastic changes
 
 ### Tools for accessing navicache.com...
+
 	nc-nearest	List the nearest caches to a location
 	nc-newest	List the newest caches in a state
 			EXPERIMENTAL, subject to drastic changes
 
 ### Tools for general use
+
 	geo-2gpsdrive	Enter a waypoint file into the GpsDrive MySQL database
 	geo-2tangogps	Enter a waypoint file into the tangoGPS or FoxtrotGPS
 			sqlite database
@@ -112,6 +118,7 @@ geo-gid -?
 			Geodetics Calculator.
 
 ### Tools for coordinate conversions
+
 	geo-addsub	Add or subtract a value from the coordinates
 	geo-coords	Convert lat/lon from one format to another
 	geo-incomplete-coords	Print out incomplete coordinates
@@ -126,15 +133,18 @@ geo-gid -?
 	ll2geohash/geohash2ll	To/From lat/lon to geohash
 
 ### Tools for manipulating Mapopolis place guide data
+
 	geo-poi		Search place guide (*.pdb or *.csv) for places
 	pgpdb2txt	Convert a place guide to plain text
 
 ### Tools for use by the MN Geocaching Association
+
 	mngca		Count caches found/placed by MnGCA members
 	mngca-logs	Create web pages of recent area logs from GPX files
 	mngca-newmap	Create newest cache maps for Minnesota
 
 ### Miscellaneous
+
 	add-pyramids	Add the Pyramids
 	adddigits	Add individual digits in a number
 	addletters	Add all letters: a=1, b=2, c=3, ... z=26
@@ -184,6 +194,7 @@ geo-gid -?
 	tap-code	Tap Code or Polybius Square decoder
 
 ### Wherigo
+
 	reverse-wherigo Reverse Wherigo decoder
 	urwigo-decode	urwigo and earwigo decoder
 	wherigo2jpg	Pull jpg images out of a wherigo file
@@ -191,6 +202,7 @@ geo-gid -?
 	zonepoint2map	Convert Wherigo ZonePoint's to geo-map coords
 
 ### Nonograms
+
 Need to get nonogram solvers from an offsite place!
 	geo-nonogram	Nonogram solver
 	nono2teal	Convert .nono to teal format
@@ -207,10 +219,12 @@ Download and extract the archive https://github.com/GarenKreiz/geo-rkkda/archive
 In the newly created directory
 
 #### Compile
+
 ```bash
 make
 ```
 #### Install
+
 ```bash
 make install			# to install in $HOME/bin
 ```
@@ -220,7 +234,9 @@ su OR sudo sh
 PREFIX=/usr make install	# to install in /usr/bin
 make install-man
 ```
+
 #### Configure
+
 Create a $HOME/.georc file with at least these lines in it:
 
 ```
@@ -300,6 +316,7 @@ these other packages (this list might be incomplete):
     units
 
 Download and install gpsbabel:
+
     wget http://www.linklevel.net/distfiles/gpsbabel-1.5.4.tar.gz
     tar zxf gpsbabel-*.tar.gz
     cd gpsbabel-1.5.4
