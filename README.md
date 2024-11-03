@@ -24,7 +24,7 @@ Warning: some tools make use of the rkkda.com site but it closed early 2021.
 
 Any of the tools will print a usage summary with "-?", e.g.
 ```bash
-$ geo-gid -?
+geo-gid -?
 ```
 
 ### Tools for accessing gc.com...
@@ -208,17 +208,17 @@ In the newly created directory
 
 #### Compile
 ```bash
-$ make
+make
 ```
 #### Install
 ```bash
-$ make install			# to install in $HOME/bin
+make install			# to install in $HOME/bin
 ```
 or
 ```bash
-$ su OR $ sudo sh
-$ PREFIX=/usr make install	# to install in /usr/bin
-$ make install-man
+su OR sudo sh
+PREFIX=/usr make install	# to install in /usr/bin
+make install-man
 ```
 #### Configure
 Create a $HOME/.georc file with at least these lines in it:
@@ -235,58 +235,55 @@ LON=-93.941033	# Your home longitude in decimal degrees
 If you don't like or don't use geo-*
 
 ```bash
-$ make uninstall			# to uninstall in $HOME/bin
+make uninstall			# to uninstall in $HOME/bin
 ```
 or
 ```bash
-$ su OR $ sudo sh
-$ PREFIX=/usr make uninstall	# to uninstall in /usr/bin...
-$ make uninstall-man
+su OR sudo sh
+PREFIX=/usr make uninstall	# to uninstall in /usr/bin...
+make uninstall-man
 ```
 
 ### GPSBABEL
 
 Use the latest gpsbabel (1.5.4+):
 
-    $ git clone https://github.com/gpsbabel/gpsbabel.git
-    $ cd gpsbabel
-    $ ./configure --prefix=/usr
-    $ make
-    $ make install
+    git clone https://github.com/gpsbabel/gpsbabel.git
+    cd gpsbabel
+    ./configure --prefix=/usr
+    make
+    make install
 
 ### MAC OSX SUPPORT
 
-Do this FIRST:
-Download and install MacPorts:
-    http://www.macports.org/
+First, download and install MacPorts from http://www.macports.org/
 
-    $ PATH=$PATH:/opt/local/bin
-    $ sudo port selfupdate
-    $ sudo port install gsed
-    $ sudo port install coreutils
-    $ sudo port install lynx
-    $ sudo port install ImageMagick
-    $ sudo port install gawk
-    $ sudo port install ghostscript
-    $ sudo port install dos2unix
-    $ sudo port install p5-xml-twig
-    $ sudo port install p5-datetime
-    $ sudo port install p5-html-parser
+    PATH=$PATH:/opt/local/bin
+    sudo port selfupdate
+    sudo port install gsed
+    sudo port install coreutils
+    sudo port install lynx
+    sudo port install ImageMagick
+    sudo port install gawk
+    sudo port install ghostscript
+    sudo port install dos2unix
+    sudo port install p5-xml-twig
+    sudo port install p5-datetime
+    sudo port install p5-html-parser
 
-Download and install gpsbabel:
-    http://www.gpsbabel.org/
+Download and install gpsbabel from http://www.gpsbabel.org/
 
-    $ wget http://www.linklevel.net/distfiles/gpsbabel-1.5.4.tar.gz
-    $ tar zxf gpsbabel-1.5.4.tar.gz
-    $ cd gpsbabel-1.5.4
-    $ ./configure
-    $ make
-    $ sudo make install
+    wget http://www.linklevel.net/distfiles/gpsbabel-1.5.4.tar.gz
+    tar zxf gpsbabel-1.5.4.tar.gz
+    cd gpsbabel-1.5.4
+    ./configure
+    make
+    sudo make install
 
 If you get "configure: error: *** A compiler with support for C++11
 language features is required.", then drop back and use:
 
-    $ wget http://www.linklevel.net/distfiles/gpsbabel-1.4.4.tar.gz
+    wget http://www.linklevel.net/distfiles/gpsbabel-1.4.4.tar.gz
 
 ### CYGWIN SUPPORT
 
@@ -303,16 +300,17 @@ these other packages (this list might be incomplete):
     units
 
 Download and install gpsbabel:
-    $ wget http://www.linklevel.net/distfiles/gpsbabel-1.5.4.tar.gz
-    $ tar zxf gpsbabel-*.tar.gz
-    $ cd gpsbabel-1.5.4
-    $ ./configure --without-libusb
-    $ make
-    $ make install
+    wget http://www.linklevel.net/distfiles/gpsbabel-1.5.4.tar.gz
+    tar zxf gpsbabel-*.tar.gz
+    cd gpsbabel-1.5.4
+    ./configure --without-libusb
+    make
+    make install
 
 ### FREEBSD SUPPORT
 
 Install with "pkg install":
+
     coreutils (gives gtouch and gdate, and more)
     gawk
     gmake
@@ -321,17 +319,17 @@ Install with "pkg install":
     unix2dos
 
 and:
-    $ su
-    # ln -s /usr/local/bin/bash /bin/bash
+
+    su
+    ln -s /usr/local/bin/bash /bin/bash
 
 Then follow the Linux instructions but use "gmake" instead of "make".
 
 ## Questions and support
 
-	You can report bug or ask for support by creating issues on Github https://github.com/GarenKreiz/geo-rkkda/issues
-
+You can report bug or ask for support by creating issues on Github https://github.com/GarenKreiz/geo-rkkda/issues
 
 ## Source code
 
-	The Github repository https://github.com/GarenKreiz/geo-rkkda was initialised with the lastest release by Rick Richardson. I, Garenkreiz, only tested and used a minimal subsets of the tools for www.geocaching.com and can't maintain the tools I don't use. Any help is thus welcome, feel free to propose patches or pull requests.
+The Github repository https://github.com/GarenKreiz/geo-rkkda was initialised with the lastest release by Rick Richardson. I, Garenkreiz, only tested and used a minimal subsets of the tools for www.geocaching.com and can't maintain the tools I don't use. Any help is thus welcome, feel free to propose patches or pull requests.
 
