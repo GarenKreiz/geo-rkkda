@@ -102,6 +102,8 @@ if [ $DEBUG -gt 0 ]; then
 else
     TMP=/tmp/geo$$
 fi
+HTMLPAGE=$TMP.page
+CRUFT="$CRUFT $HTMLPAGE"
 if [ $NOCOOKIES = 1 ]; then
     CRUFT="$CRUFT $COOKIE_FILE"
 fi
@@ -352,51 +354,10 @@ upload_pictures() {
 	TMP=/tmp/geo$$
     fi
 
-    HTMLPAGE=$TMP.page
-    CIDFILE=$TMP.cids
-    LOCFILE=$TMP.loc
-    LOCTMPFILE=$TMP.tmp
-    XTRAFILE=$TMP.xtra
-    CSVFILE=$TMP.csv
-    CSVFILE2=$TMP.csv2
-    JOINFILE=$TMP.join
-    MERGEFILE=$TMP.merge
-    ARCHFILE=$TMP.arch
-    OUTWAY=$TMP.way
-    STYLE=$TMP.newstyle
-
-    CRUFT="$CRUFT $HTMLPAGE"
-    CRUFT="$CRUFT $CIDFILE"
-    CRUFT="$CRUFT $LOCFILE"
-    CRUFT="$CRUFT $LOCTMPFILE"
-    CRUFT="$CRUFT $XTRAFILE"
-    CRUFT="$CRUFT $CSVFILE"
-    CRUFT="$CRUFT $CSVFILE2"
-    CRUFT="$CRUFT $JOINFILE"
-    CRUFT="$CRUFT $MERGEFILE"
-    CRUFT="$CRUFT $ARCHFILE"
-    CRUFT="$CRUFT $OUTWAY"
-    CRUFT="$CRUFT $STYLE"
-    if [ $NOCOOKIES = 1 ]; then
-	CRUFT="$CRUFT $COOKIE_FILE"
-    fi
-
     echo ==== Login to gc.com
     gc_login "$USERNAME" "$PASSWORD"
 
-    if [ $DEBUG -gt 0 ]; then
-	filter2="tee $TMP.bulk"
-    else
-	filter2=cat
-    fi
-
-    subscriber=1
-    > $XTRAFILE
-    > $ARCHFILE
-    ((start=0))
-
     if [ "$LISTPICTURES" != "" ] ; then
-
 	echo ==== Processing $LISTPICTURES
 	test -f $LISTPICTURES || (echo "No file " $LISTPICTURES ; exit )
  	process_file $LISTPICTURES			       
