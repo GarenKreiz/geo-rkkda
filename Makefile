@@ -557,6 +557,8 @@ geo-usernum: geo-common geo-common-gc Makefile
 geo-cs-html2db: geo-common geo-common-gc Makefile
 geo-soon: geo-common geo-common-gc geo-common-gpsdrive Makefile
 gpx-unfound: geo-common geo-common-oc Makefile
+geo-phone2word: Makefile
+ll2osmtile: geo-common Makefile
 ll2pluscodes: geo-common Makefile
 
 geo-images: images Makefile
@@ -622,9 +624,11 @@ clean:
 	rm -f ok-nearest ok-newest
 	rm -f ll2maidenhead maidenhead2ll ll2usng usng2ll ll2rd rd2ll
 	rm -f ll2osg osg2ll ll2geohash
+	rm -f ll2osmtile
 	rm -f ll2pluscodes
 	rm -f geo-correct-coords
 	rm -f geo-phone2word
+	rm -f geo-zipcode
 	rm -f gpx-unfound
 	rm -f geo-cs-html2db
 	rm -f geo-demand-cs geo-newest-cs
