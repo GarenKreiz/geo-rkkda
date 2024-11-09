@@ -115,8 +115,9 @@ get1gpx() {
     #
     # this page fetch is wasteful, but I know no other way to get it.
     #
-    URL="$GEO/seek/cache_details.aspx"
+    URL="$GEOS/seek/cache_details.aspx"
     URL="$URL?wp=$_gid"
+
     dbgcmd curl $CURL_OPTS -L -s -b $COOKIE_FILE -A "$UA" "$URL" \
 	-w "%{url_effective}\n" \
 	-o /dev/null > $HTMLPAGE
@@ -126,6 +127,7 @@ get1gpx() {
     #	https://www.geocaching.com/seek/cache_details.aspx?wp=GC18438&title=achterwehr
     #
     URL=`cat $HTMLPAGE`
+
     dbgcmd curl $CURL_OPTS -s -b $COOKIE_FILE -A "$UA" "$URL" \
 	> $HTMLPAGE
 
