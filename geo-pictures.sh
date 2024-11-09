@@ -189,57 +189,6 @@ upload_image() {
     fi 
     
     return
-    echo ==== Modify details $URL in $ID
-
-    curl $CURL_OPTS -L -s -b $COOKIE_FILE -A "$UA" \
-	 -v --trace trace_modify_details_$ID.txt \
-    	 $viewstate \
-	 -d "__VIEWSTATEGENERATOR=$__VIEWSTATEGENERATOR" \
-	 -d "__EVENTTARGET=ctl00\$ContentBody\$ImageEditPanel1\$btnEditTxt" \
-	 -d "__EVENTARGUMENT=" \
-	"$URL" > $HTMLPAGE
-
-    cp $HTMLPAGE geo_modify_details_$ID.html
-    cleaning modify_details_$ID
-
-    gc_getviewstate $HTMLPAGE
-    sleep 1
-    
-    if ! grep -y -q "description:" $HTMLPAGE; then
-	error "Error after modifying details"
-    fi 
-
-    echo ==== Sending form $URL
-  
-    echo ==== Date $DATEPICTURE
-    setDate=`echo $DATEPICTURE | sed 's,\(....\)/\(..\)/\(..\),Year=\1 ; Month=\2 ; Day=\3,'`
-    eval $setDate
-    curl $CURL_OPTS -L -s -b $COOKIE_FILE -A "$UA" \
-	 -v --trace trace_sending_form_$ID.txt \
-	 -d "__EVENTTARGET=" \
-	 -d "__EVENTARGUMENT=" \
-	 -d "__LASTFOCUS=" \
-    	 $viewstate \
-	 -d "__VIEWSTATEGENERATOR=$__VIEWSTATEGENERATOR" \
-	 -d "ctl00\$ContentBody\$ImageEditPanel1\$tbName=$CAPTIONPICTURE" \
-	 -d "ctl00\$ContentBody\$ImageEditPanel1\$tbDateTimeTaken=September/01/2016" \
-	 -d "ctl00\$ContentBody\$ImageEditPanel1\$tbDateTimeTaken\$Month=$Month" \
-	 -d "ctl00\$ContentBody\$ImageEditPanel1\$tbDateTimeTaken\$Day=$Day" \
-	 -d "ctl00\$ContentBody\$ImageEditPanel1\$tbDateTimeTaken\$Year=$Year" \
-	 -d "ctl00\$ContentBody\$ImageEditPanel1\$tbNote=$DESCRIPTIONPICTURE" \
-	 -d "ctl00\$ContentBody\$ImageEditPanel1\$btnEdit=Modifier+les+détails" \
-	 -d "__RequestVerificationToken=$__RequestVerificationToken" \
-	"$URL" > $HTMLPAGE
-
-    cp $HTMLPAGE geo_sending_form_$ID.html
-    cleaning sending_form_$ID
-
-    sleep 1
-    
-    if ! grep -y -q "_lbHeading" $HTMLPAGE; then
-		return
-	error "Error after uploading an image"
-    fi 
 }
 
 # to detect when to change the log
@@ -335,6 +284,8 @@ goto_log() {
 
     CSRF_TOKEN=`grep "csrfToken" $HTMLPAGE | sed 's,.*csrfToken":",,' | sed 's/".*//'`
 	OLDLOGID=$LOGID
+
+    sleep 1
 }
 
 process_file() {
