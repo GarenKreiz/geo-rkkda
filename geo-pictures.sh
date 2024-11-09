@@ -12,7 +12,7 @@
 #	Requires: curl; bash or ksh;
 #
 #	Based on geo-found, donated to the public domain by Rick Richardson <rickrich@gmail.com>
-#   Modifications and additions : copyright Garenkreiz 2016-2024
+#   Modifications and additions : Copyright Garenkreiz 2016-2024
 # 
 #	Use at your own risk.  Not suitable for any purpose.  Not legal tender.
 #
@@ -25,7 +25,7 @@ NAME
     `basename $PROGNAME` - Add pictures to geocaching logs
 
 SYNOPSIS
-    `basename $PROGNAME` -n <list-of-pictures.txt> 
+    `basename $PROGNAME` -f <list-of-pictures.txt>
 
 DESCRIPTION
     Add pictures to geocaching logs, setting the correct date.
@@ -242,6 +242,8 @@ upload_image() {
     fi 
 }
 
+# to detect when to change the log
+# to optimize uploading multiple pictures on the same log
 export OLDLOGID=""
 
 #
