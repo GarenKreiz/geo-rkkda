@@ -210,7 +210,7 @@ SQLUSER=gast	# For -o gpsdrive.sql
 SQLPASS=gast	# For -o gpsdrive.sql
 SQLDB=geoinfo	# For -o gpsdrive.sql
 CODETYPE=new
-UPDATE_URL=$WEBHOME/geo-code
+UPDATE_URL=$UPDATEHOME/geo-code
 UPDATE_FILE=geo-code.new
 
 read_rc_file

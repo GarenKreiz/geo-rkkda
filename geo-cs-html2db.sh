@@ -36,7 +36,7 @@ EOF
 #       Set default options, can be overriden on command line or in rc file
 #
 PQURL="https://www.geocaching.com/pocket/gcquery.aspx"
-UPDATE_URL=$WEBHOME/geo-demand
+UPDATE_URL=$UPDATEHOME/geo-demand
 UPDATE_FILE=geo-demand.new
 CTL="ctl00%24ContentBody%24"
 DEBUG=0

@@ -262,7 +262,7 @@ ok_country2cc() {
 #
 #       Set default options, can be overriden on command line or in rc file
 #
-UPDATE_URL=$WEBHOME/ok-newest
+UPDATE_URL=$UPDATEHOME/ok-newest
 UPDATE_FILE=ok-newest.new
 
 read_rc_file

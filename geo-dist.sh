@@ -279,7 +279,7 @@ make_temp_style() {
 #
 #       Set default options, can be overriden on command line or in rc file
 #
-UPDATE_URL=$WEBHOME/geo-dist
+UPDATE_URL=$UPDATEHOME/geo-dist
 UPDATE_FILE=geo-dist.new
 
 read_rc_file

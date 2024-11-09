@@ -9,7 +9,8 @@ LANG=en_US
 #	Common global constants
 #
 UA="Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)"
-WEBHOME="http://geo.rkkda.com/"
+WEBHOME="https://github.com/GarenKreiz/geo-rkkda/"
+UPDATEHOME="https://raw.githubusercontent.com/GarenKreiz/geo-rkkda/refs/heads/main/"
 
 #
 #	Common global variables

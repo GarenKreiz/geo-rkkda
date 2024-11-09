@@ -69,7 +69,7 @@ EOF
 #
 #       Set default options, can be overriden on command line or in rc file
 #
-UPDATE_URL=$WEBHOME/geo-gpx
+UPDATE_URL=$UPDATEHOME/geo-gpx
 UPDATE_FILE=geo-gpx.new
 
 read_rc_file

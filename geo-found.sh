@@ -92,7 +92,7 @@ EOF
 #
 #       Set default options, can be overriden on command line or in rc file
 #
-UPDATE_URL=$WEBHOME/geo-found
+UPDATE_URL=$UPDATEHOME/geo-found
 UPDATE_FILE=geo-found.new
 EXCLUDE='_NoThInG_'	# Make more sense to not exclude unavails for this query
 

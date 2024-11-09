@@ -49,7 +49,7 @@ EOF
 #
 #       Set default options, can be overriden on command line or in rc file
 #
-UPDATE_URL=$WEBHOME/geo-myfinds
+UPDATE_URL=$UPDATEHOME/geo-myfinds
 UPDATE_FILE=geo-myfinds.new
 
 read_rc_file

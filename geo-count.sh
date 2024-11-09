@@ -87,7 +87,7 @@ read_rc_file
 #       Process the options
 #
 HDR=0
-UPDATE_URL=$WEBHOME/geo-count
+UPDATE_URL=$UPDATEHOME/geo-count
 UPDATE_FILE=geo-count.new
 while getopts "bchop:stu:D:Uh?-" opt
 do

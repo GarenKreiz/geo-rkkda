@@ -67,7 +67,7 @@ ALIAS=$HOME/.geo-alias
 DB=$HOME/.geo-usernum
 SUMONLY=0
 FORCE=0
-UPDATE_URL=$WEBHOME/geo-usernum
+UPDATE_URL=$UPDATEHOME/geo-usernum
 UPDATE_FILE=geo-usernum.new
 
 #

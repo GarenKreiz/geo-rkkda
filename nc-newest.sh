@@ -56,7 +56,7 @@ EOF
 #
 #       Set default options, can be overriden on command line or in rc file
 #
-UPDATE_URL=$WEBHOME/nc-newest
+UPDATE_URL=$UPDATEHOME/nc-newest
 UPDATE_FILE=nc-newest.new
 STATE=MN
 

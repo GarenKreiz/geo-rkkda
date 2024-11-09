@@ -9,7 +9,6 @@
 #
 
 PROGNAME="$0"
-WEBHOME="http://geo.rkkda.com/"
 
 usage() {
 	cat <<EOF
@@ -78,7 +77,7 @@ ZIP=
 OUTFMT=gpsdrive
 BABELFLAGS=-s
 GPSDRIVE_VER=2.09
-UPDATE_URL=$WEBHOME/geo-waypoint
+UPDATE_URL=$UPDATEHOME/geo-waypoint
 UPDATE_FILE=geo-waypoint.new
 NOFOUND=0
 
@@ -144,7 +143,7 @@ case "$1" in
 N|S)
     if [ $# -gt 6 ]; then
 	# Cut and paste from geocaching.com cache page
-	# N 44° 58.630 W 093° 09.310
+	# N 44ï¿½ 58.630 W 093ï¿½ 09.310
 	LAT=`echo "$1$2.$3" | tr -d '\260\302' `
 	LAT=`latlon $LAT`
 	LON=`echo "$4$5.$6" | tr -d '\260\302' `

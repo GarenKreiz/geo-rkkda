@@ -60,7 +60,7 @@ EOF
 #
 #       Set default options, can be overriden on command line or in rc file
 #
-UPDATE_URL=$WEBHOME/oc-nearest
+UPDATE_URL=$UPDATEHOME/oc-nearest
 UPDATE_FILE=oc-nearest.new
 
 read_rc_file

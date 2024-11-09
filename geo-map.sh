@@ -1221,7 +1221,7 @@ MAPFONT=${MAPFONT:-}
 MAPTEXTBG=${MAPTEXTBG:-white}		#Can also use #rrggbbaa
 MAPTEXTFG=${MAPTEXTFG:-black}		#Can also use #rrggbbaa
 
-UPDATE_URL=$WEBHOME/geo-map
+UPDATE_URL=$UPDATEHOME/geo-map
 UPDATE_FILE=geo-map.new
 
 read_rc_file

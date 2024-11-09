@@ -219,7 +219,7 @@ EOF
 #       Set default options, can be overriden on command line or in rc file
 #
 PQURL="https://www.geocaching.com/pocket/gcquery.aspx"
-UPDATE_URL=$WEBHOME/geo-demand
+UPDATE_URL=$UPDATEHOME/geo-demand
 UPDATE_FILE=geo-demand.new
 outputEmail=
 CTL="ctl00%24ContentBody%24"
@@ -604,7 +604,7 @@ while true; do
     case "$#" in
     6)
 	    # Cut and paste from geocaching.com cache page
-	    # N 44° 58.630 W 093° 09.310
+	    # N 44ï¿½ 58.630 W 093ï¿½ 09.310
 	    LAT=`echo "$1$2.$3" | tr -d '\260\302' `
 	    LAT=`latlon $LAT`
 	    LON=`echo "$4$5.$6" | tr -d '\260\302' `

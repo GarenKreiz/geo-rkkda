@@ -1,7 +1,8 @@
 #!/bin/bash
 
 PROGNAME="$0"
-WEBHOME="http://geo.rkkda.com/"
+WEBHOME="https://github.com/GarenKreiz/geo-rkkda/"
+UPDATEHOME="https://raw.githubusercontent.com/GarenKreiz/geo-rkkda/refs/heads/main/"
 
 usage() {
 	cat <<EOF
@@ -99,9 +100,9 @@ OUTFMT=txt
 SQLUSER=gast	# For -o gpsdrive.sql
 SQLPASS=gast	# For -o gpsdrive.sql
 SQLDB=geoinfo	# For -o gpsdrive.sql
-UPDATEpoiURL=$WEBHOME/geo-poi
+UPDATEpoiURL=$UPDATEHOME/geo-poi
 UPDATEpoiFILE=geo-poi.new
-UPDATEpgpdbURL=$WEBHOME/pgpdb2txt.c
+UPDATEpgpdbURL=$UPDATEHOME/pgpdb2txt.c
 UPDATEpgpdbFILE=pgpdb2txt.c.new
 GPSDRIVERC=$HOME/.gpsdrive/gpsdriverc
 RADIUS=5

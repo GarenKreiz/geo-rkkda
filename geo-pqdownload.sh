@@ -80,7 +80,7 @@ EOF
 #       Set default options, can be overriden on command line or in rc file
 #
 PQURL="https://www.geocaching.com/pocket/default.aspx"
-UPDATE_URL=$WEBHOME/geo-pqdownload
+UPDATE_URL=$UPDATEHOME/geo-pqdownload.sh
 UPDATE_FILE=geo-pqdownload.new
 outputEmail=
 CTL="ctl00%24ContentBody%24"

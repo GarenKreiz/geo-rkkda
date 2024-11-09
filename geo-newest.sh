@@ -111,7 +111,7 @@ EOF
 #
 #       Set default options, can be overriden on command line or in rc file
 #
-UPDATE_URL=$WEBHOME/geo-newest
+UPDATE_URL=$UPDATEHOME/geo-newest
 UPDATE_FILE=geo-newest.new
 STATE=MN
 COUNTRY=

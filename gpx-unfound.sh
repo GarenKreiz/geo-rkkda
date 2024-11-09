@@ -47,7 +47,7 @@ EOF
 #
 #       Set default options, can be overriden on command line or in rc file
 #
-UPDATE_URL=$WEBHOME/oc-newest
+UPDATE_URL=$UPDATEHOME/oc-newest
 UPDATE_FILE=oc-newest.new
 GEOMYSTERY=/dev/null
 

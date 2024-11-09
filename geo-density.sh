@@ -53,7 +53,7 @@ EOF
 #
 #       Set default options, can be overriden on command line or in rc file
 #
-UPDATE_URL=$WEBHOME/geo-density
+UPDATE_URL=$UPDATEHOME/geo-density
 UPDATE_FILE=geo-density.new
 
 read_rc_file
