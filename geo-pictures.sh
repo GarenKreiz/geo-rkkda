@@ -118,6 +118,13 @@ SEARCH="?ul=$byuser"
 if [ "$BYUSER" = "$USERNAME" ]; then
     VARTIME=ifound
 fi
+DEBUG=0
+cleaning() {
+    if [ $DEBUG = 0 ]; then
+        rm trace_$1.txt
+        rm geo_$1.html
+    fi
+}
 
 #
 # upload an image with title and set the date
@@ -146,6 +153,7 @@ upload_image() {
 		 "$URL" > $HTMLPAGE
 
     cp $HTMLPAGE geo_upload_image_$ID.html
+    cleaning upload_image_$ID
 
     sleep 1
 
@@ -172,6 +180,7 @@ upload_image() {
 		 "$URL" > $HTMLPAGE
 
     cp $HTMLPAGE geo_modify_image_$ID.html
+    cleaning modify_image_$ID
 
     sleep 1
     
@@ -191,6 +200,8 @@ upload_image() {
 	"$URL" > $HTMLPAGE
 
     cp $HTMLPAGE geo_modify_details_$ID.html
+    cleaning modify_details_$ID
+
     gc_getviewstate $HTMLPAGE
     sleep 1
     
@@ -221,6 +232,8 @@ upload_image() {
 	"$URL" > $HTMLPAGE
 
     cp $HTMLPAGE geo_sending_form_$ID.html
+    cleaning sending_form_$ID
+
     sleep 1
     
     if ! grep -y -q "_lbHeading" $HTMLPAGE; then
@@ -260,6 +273,8 @@ goto_log() {
         | $sed -e "s/&#39;/'/g" -e "s/\r//" > $HTMLPAGE
 
     cp $HTMLPAGE geo_seeking_log_$ID.html
+    cleaning seeking_log_$ID
+
     gc_getviewstate $HTMLPAGE
     
     if ! grep -y -q "logText" $HTMLPAGE; then
@@ -285,6 +300,7 @@ goto_log() {
         | $sed -e "s/&#39;/'/g" -e "s/\r//" > $HTMLPAGE
 
     cp $HTMLPAGE geo_get_auth_$ID.html
+    cleaning get_auth_$ID
     
     if ! grep -y -q "access_token" $HTMLPAGE; then
 		error "Authorization failed"
@@ -309,6 +325,7 @@ goto_log() {
         | $sed -e "s/&#39;/'/g" -e "s/\r//" > $HTMLPAGE
 
     cp $HTMLPAGE geo_get_csrf_$ID.html
+    cleaning get_csrf_$ID
     
     if ! grep -y -q "csrfToken" $HTMLPAGE; then
 		error "Authorization failed"
