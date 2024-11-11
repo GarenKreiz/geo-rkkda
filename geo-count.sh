@@ -120,44 +120,63 @@ shift `expr $OPTIND - 1`
 #	Count the cache stats for a gc.com cache
 #
 count_a_gc_cache() {
-    lynx -dump --width=999999 \
-	"$GEOS/seek/cache_details.aspx?wp=$1&log=y" \
+    curl $CURL_OPTS -L -s -b $COOKIE_FILE -A "$UA" \
+	"$GEOS/seek/cache_details.aspx?wp=$1" \
+	| tee geo-count_cache.html \
     | awk \
 	-v "ID=$1" \
 	-v SUMONLY=$SUMONLY \
     '
-    /^   [[]1]/ {
-	name = $0
-	gsub("[[][^]]*]", "", name)
-	gsub(" *$", "", name)
-	gsub("^ *", "", name)
-    }
-    /^   by / {
-	by = $0
-	gsub("^   ", "", by)
-	gsub(" [[].*]", "", by)
-    }
-    /found)/{
-	++logs
-	if ($0 ~ "icon_smile")
-	    ++finds
-	else if ($0 ~ "icon_note")
-	    ++notes
-	else if ($0 ~ "icon_needsmaint")
-	    ++notes
-	else if ($0 ~ "icon_sad")
-	    ++dnfs
-	else
-	{
-	    ++unk
-	    if (!SUMONLY)
-		print "Unknown: " $0
+	BEGIN {
+		searchingby = 1
 	}
+	/CacheName/ {
+		match($0, ".>(.*)<.", fld)
+		name = fld[1]
+	}
+	/ContentBody_mcd1/ {
+		if (searchingby == 1)
+			searchingby = 2
+	}
+    /guid=.*/ {
+		if (searchingby == 2) {
+			match($0, ".*guid=[^>]*> *([^<]*)<.*", fld)
+			by = fld[1]
+			searchingby = 0
+		}
+    }
+	/uxLogbookLink/ {
+		match($0, ".*uxLogbookLink[^<]*\\(([0-9][0-9,]*)\\)<.*", fld)
+		logs = fld[1]
+		sub(",","",logs)
+	}
+    /lblFindCounts/{
+		if ($0 ~ "Found it") {
+			match($0, ".*Found it\" */> *([0-9,]*)<.*", fld)
+			finds = fld[1]
+			sub(",","",finds)
+		}
+		if ($0 ~ "Write note") {
+			match($0, ".*Write note\" */> *([0-9,]*)<.*", fld)
+			notes = fld[1]
+			sub(",","",notes)
+		}
+		if ($0 ~ "Owner attention required") {
+			match($0, ".*Owner attention required\" */> *([0-9,]*)<.*", fld)
+			maints = fld[1]
+			sub(",","",maints)
+			notes = notes + maints
+		}
+		if ($0 ~ "t find it") {
+			match($0, ".*t find it\" */> *([0-9,]*)<.*", fld)
+			dnfs = fld[1]
+			sub(",","",dnfs)
+		}
     }
     END {
 	if (SUMONLY)
 	{
-	    printf "%s	%6d	%6d	%6d	%6d	%s %s\n",
+	    printf "%s	%6d	%6d	%6d	%6d	%s	%s\n",
 		ID, finds, dnfs, notes, logs, name, by
 	}
 	else
@@ -167,7 +186,7 @@ count_a_gc_cache() {
 	    printf "DNFs:	%6d\n", dnfs
 	    printf "Notes:	%6d\n", notes
 	    if (unk)
-		printf "Unknown:	%6d\n", unk
+			printf "Unknown:	%6d\n", unk
 	    printf "Total:	%6d\n", logs
 	}
     }'
@@ -196,11 +215,6 @@ count_a_gc_user() {
 	    ;;
     esac
 
-    if [ "$DEBUG" -lt 2 ]; then
-	if [ "$__VIEWSTATE" = "" ]; then
-	    gc_login "$USERNAME" "$PASSWORD"
-	    sleep $GEOSLEEP
-	fi
 	#
 	#	Get Profile page first, so we can get a viewstate.
 	#
@@ -231,7 +245,7 @@ count_a_gc_user() {
 	    -d __EVENTARGUMENT= \
 	    $viewstate \
 	    "$URL" > $HTMLPAGE
-    fi
+    
 	cp $HTMLPAGE geo-count_result.html
     #
     #	Use htmltbl2db to dump the table in an easily parsable format, then
@@ -359,14 +373,21 @@ fi
 HTMLPAGE=$TMP.html
 CRUFT="$CRUFT $HTMLPAGE"
 
+if [ "$DEBUG" -lt 2 ]; then
+if [ "$__VIEWSTATE" = "" ]; then
+	gc_login "$USERNAME" "$PASSWORD"
+	sleep $GEOSLEEP
+fi
+fi
+
 needhdr=1
 __VIEWSTATE=
 for what in "$@"
 do
     case "$what" in
-    GC[0-9A-Z][0-9A-Z][0-9A-Z][0-9A-Z])
+    GC[0-9A-Z][0-9A-Z]*)
 	if [ $needhdr = 1 -a $HDR = 1 ]; then
-	    echo "#ID	#Found	  #DNF	#Notes	#Total	Name"
+	    echo "#ID	#Found	#DNF	#Notes	#Total	Name	By"
 	    needhdr=0
 	fi
 	count_a_gc_cache "$what"
