@@ -121,7 +121,7 @@ shift `expr $OPTIND - 1`
 #
 count_a_gc_cache() {
     lynx -dump --width=999999 \
-	"$GEO/seek/cache_details.aspx?wp=$1&log=y" \
+	"$GEOS/seek/cache_details.aspx?wp=$1&log=y" \
     | awk \
 	-v "ID=$1" \
 	-v SUMONLY=$SUMONLY \
@@ -205,31 +205,40 @@ count_a_gc_user() {
 	#	Get Profile page first, so we can get a viewstate.
 	#
 	case "$USERNUM" in
-	*-*)	URL="$GEO/profile/default.aspx?guid=$USERNUM";;
-	*)	URL="$GEO/profile/default.aspx?A=$USERNUM";;
+	*-*)	URL="$GEOS/profile/default.aspx?guid=$USERNUM";;
+	*)	URL="$GEOS/profile/default.aspx?A=$USERNUM";;
+	esac
+	case "$USERNUM" in
+	*-*)	URL="$GEOS/p/default.aspx?guid=$USERNUM&tab=geocaches#profilepanel";;
+	*)	URL="$GEOS/p/default.aspx?A=$USERNUM&tab=geocaches#profilepanel";;
 	esac
 	debug 1 "$URL"
 	curl $CURL_OPTS -L -s -b $COOKIE_FILE -A "$UA" "$URL" > $HTMLPAGE
 
+	cp $HTMLPAGE geo-count_resu.html
+
 	gc_getviewstate $HTMLPAGE
+
+	echo $viewstate | sed 's/ -d /\&/g' | sed 's/-d//' > geo-count_viewstate.txt
 
 	#
 	#	Now retrieve the page of user stats
 	#
-	debug 1 "curl $URL -d __EVENTTARGET=ctl00%24ContentBody%24ProfilePanel1%24lnkUserStats"
+	
+	debug 1 "curl $URL -d __EVENTTARGET=ctl00%24ContentBody%24ProfilePanel1%24lnkStatistics"
 	curl $CURL_OPTS -L -s -b $COOKIE_FILE -A $"UA" \
-	    -d __EVENTTARGET=ctl00%24ContentBody%24ProfilePanel1%24lnkUserStats \
+	    -d __EVENTTARGET=ctl00%24ContentBody%24ProfilePanel1%24lnkStatistics \
 	    -d __EVENTARGUMENT= \
 	    $viewstate \
-	    -d __EVENTVALIDATION="$__EVENTVALIDATION" \
 	    "$URL" > $HTMLPAGE
     fi
-
+	cp $HTMLPAGE geo-count_result.html
     #
     #	Use htmltbl2db to dump the table in an easily parsable format, then
     #	massage the output with sed and awk
     #
-    geo-htmltbl2db -F'	' $HTMLPAGE \
+    geo-htmltbl2db -F'	' geo-count_resu.html \
+	| tee geo-count_tee.txt \
     | gawk \
 	-F "	" \
 	-v SUMONLY=$SUMONLY \
@@ -256,14 +265,14 @@ count_a_gc_user() {
 	    inowned = 0
 	    next
     }
-    /Total Caches Found/ {
+    /Total Found/ {
 	    if (infound && !SUMONLY)
 		printf "%-47s	%4d\n", "TOTAL FOUND", total_found
 	    infound = 0
 	    inowned = 0
 	    next
     }
-    /Total Caches Hidden/ {
+    /Total Caches Owned/ {
 	    if (infound && !SUMONLY)
 		printf "%-47s	%4d\n", "TOTAL FOUND", total_found
 	    infound = 0
