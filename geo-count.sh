@@ -122,7 +122,7 @@ shift `expr $OPTIND - 1`
 count_a_gc_cache() {
     curl $CURL_OPTS -L -s -b $COOKIE_FILE -A "$UA" \
 	"$GEOS/seek/cache_details.aspx?wp=$1" \
-	| tee geo-count_cache.html \
+	| tee $HTMLPAGE \
     | awk \
 	-v "ID=$1" \
 	-v SUMONLY=$SUMONLY \
@@ -229,30 +229,27 @@ count_a_gc_user() {
 	debug 1 "$URL"
 	curl $CURL_OPTS -L -s -b $COOKIE_FILE -A "$UA" "$URL" > $HTMLPAGE
 
-	cp $HTMLPAGE geo-count_resu.html
-
 	gc_getviewstate $HTMLPAGE
-
-	echo $viewstate | sed 's/ -d /\&/g' | sed 's/-d//' > geo-count_viewstate.txt
 
 	#
 	#	Now retrieve the page of user stats
+	#   Unused as some are now private by user choice
 	#
-	
-	debug 1 "curl $URL -d __EVENTTARGET=ctl00%24ContentBody%24ProfilePanel1%24lnkStatistics"
-	curl $CURL_OPTS -L -s -b $COOKIE_FILE -A $"UA" \
-	    -d __EVENTTARGET=ctl00%24ContentBody%24ProfilePanel1%24lnkStatistics \
-	    -d __EVENTARGUMENT= \
-	    $viewstate \
-	    "$URL" > $HTMLPAGE
+	#HTMLPAGE=${TMP}_stats.html
+	#CRUFT="$CRUFT $HTMLPAGE"
+
+	#debug 1 "curl $URL -d __EVENTTARGET=ctl00%24ContentBody%24ProfilePanel1%24lnkStatistics"
+	#curl $CURL_OPTS -L -s -b $COOKIE_FILE -A $"UA" \
+	#    -d __EVENTTARGET=ctl00%24ContentBody%24ProfilePanel1%24lnkStatistics \
+	#    -d __EVENTARGUMENT= \
+	#    $viewstate \
+	#    "$URL" > $HTMLPAGE
     
-	cp $HTMLPAGE geo-count_result.html
     #
     #	Use htmltbl2db to dump the table in an easily parsable format, then
     #	massage the output with sed and awk
     #
-    geo-htmltbl2db -F'	' geo-count_resu.html \
-	| tee geo-count_tee.txt \
+    geo-htmltbl2db -F'	' $HTMLPAGE \
     | gawk \
 	-F "	" \
 	-v SUMONLY=$SUMONLY \
