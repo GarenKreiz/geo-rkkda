@@ -752,7 +752,7 @@ DateTimeEnd_year=`$date -d "$timeEnd" +"%Y" `
 # Clamp dates to range permitted by gc.com (else you get a PQ you can't remove)
 #
 CLAMP_MIN=2000
-CLAMP_MAX=2022
+CLAMP_MAX=2025
 if ((DateTimeBegin_year < $CLAMP_MIN)); then
     DateTimeBegin_month=1
     DateTimeBegin_day=1
@@ -829,9 +829,9 @@ if grep -q '<p class="Warning">' $REPLY; then
 	`
     error "$msg"
 fi
-
+echo $viewstate | sed 's/ -d /\&/g' | sed 's/-d //' > geo-demand_viewstate.txt
 $echo dbgcmd curl $CURL_OPTS -L -s -b $COOKIE_FILE -c $COOKIE_FILE -A "$UA" \
-	$viewstate \
+	-d @geo-demand_viewstate.txt \
 	-d __EVENTVALIDATION="$__EVENTVALIDATION" \
 	-d "${CTL}tbName=$tbName" \
 	$days \
@@ -883,7 +883,7 @@ $echo dbgcmd curl $CURL_OPTS -L -s -b $COOKIE_FILE -c $COOKIE_FILE -A "$UA" \
 	-d "__EVENTTARGET=" \
 	-d "__EVENTARGUMENT=" \
 	"$PQURL" > $REPLY
-
+cp $REPLY geo-demand_result.html
 if [ "$DEBUG" -ge 3 ]; then
     cat $REPLY
     exit
