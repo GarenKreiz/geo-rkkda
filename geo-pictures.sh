@@ -1,21 +1,18 @@
 #!/bin/bash
 
-#
 #       geo-pictures
 #
 #       add pictures to logs on www.geocaching.com
 #
 #       syntax:
 #               geo-pictures -f <list-of-pictures.txt>
-
 #
 #	Requires: curl; bash or ksh;
 #
-#	Based on geo-found, donated to the public domain by Rick Richardson <rickrich@gmail.com>
+#	Based on geo-found that was donated to the public domain by Rick Richardson <rickrich@gmail.com>
 #   Modifications and additions : Copyright Garenkreiz 2016-2024
 # 
 #	Use at your own risk.  Not suitable for any purpose.  Not legal tender.
-#
 
 PROGNAME="$0"
 
@@ -57,7 +54,7 @@ FILES
     ~/.georc
 
 SEE ALSO
-    https://github.com/GarenKreiz/geo-rkkda
+    $WEBHOME
 EOF
 
 	exit 1
