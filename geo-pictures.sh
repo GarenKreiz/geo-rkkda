@@ -118,7 +118,6 @@ fi
 DEBUG=0
 cleaning() {
     if [ $DEBUG = 0 ]; then
-        rm trace_$1.txt
         rm geo_$1.html
     fi
 }
@@ -141,7 +140,6 @@ upload_image() {
     echo ==== Upload $URL in $ID
 
 	curl $CURL_OPTS -L -s -b $COOKIE_FILE -c $COOKIE_FILE -A "$UA" \
-		 -v --trace trace_upload_image_$ID.txt \
 		 -H "Connection: keep-alive" \
 		 -H "CSRF-Token: $CSRF_TOKEN" \
 		 -H "Authorization: Bearer $ACCESS_TOKEN" \
@@ -165,7 +163,6 @@ upload_image() {
 
     curl $CURL_OPTS -L -s -b $COOKIE_FILE -c $COOKIE_FILE -A "$UA" \
 		 -X PUT \
-		 -v --trace trace_modify_image_$ID.txt \
 		 -H "Connection: keep-alive" \
 		 -H "CSRF-Token: $CSRF_TOKEN" \
 		 -H "Origin: www.geocaching.com" \
@@ -216,7 +213,6 @@ goto_log() {
 
     ID=$RANDOM
     curl $CURL_OPTS -L -s -b $COOKIE_FILE -c $COOKIE_FILE -A "$UA" \
-	 -v --trace trace_seeking_log_$ID.txt \
         "$URL" \
         | $sed -e "s/&#39;/'/g" -e "s/\r//" > $HTMLPAGE
 
@@ -243,7 +239,6 @@ goto_log() {
     ID=$RANDOM
 	
     curl $CURL_OPTS -L -s -b $COOKIE_FILE -c $COOKIE_FILE -A "$UA" \
-	 -v --trace trace_get_auth_$ID.txt \
         "$URL" \
         | $sed -e "s/&#39;/'/g" -e "s/\r//" > $HTMLPAGE
 
@@ -266,7 +261,6 @@ goto_log() {
     ID=$RANDOM
 	
     curl $CURL_OPTS -L -s -b $COOKIE_FILE -c $COOKIE_FILE -A "$UA" \
-		-v --trace trace_get_csrf_$ID.txt \
 		-H "Accept: application/json" \
 		-H "Referer: https://www.geocaching.com/live/log/$LID" \
         "$URL" \
