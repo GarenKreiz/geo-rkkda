@@ -79,6 +79,7 @@ OPTIONS
         -r radius       Return caches within radius (mi or km) [100mi]
 	-w		Wait for query to be removed.
 	-W		Do not delete query.
+	-x		Do not execute query.
 	-T period	Placed within last period (week, month, year)
 	-T mm/dd/yyyy-mm/dd/yyyy	Placed between two dates.
 			Also -mm/dd/yyyy (oldest) and mm/dd/yyyy- (newest)
@@ -245,6 +246,7 @@ TYPES=
 CONTS=
 THATS=
 ATTRS=
+EXEC=1
 tbName=DemandQuery1
 cbDifficulty=
 cbTerrain=
@@ -261,8 +263,9 @@ DELETE=0
 SQL=0
 MAP=0
 
-while getopts "a:fFo:O:H:k:L:cd:e:t:T:n:N:q:p:r::u:wWzD:Uh?-" opt
+while getopts "a:fFo:O:H:k:L:cd:e:t:T:n:N:q:p:r::u:wWxzD:Uh?-" opt
 do
+echo == $opt
     case $opt in
     c)	NOCOOKIES=1;;
     e)	outputEmail="$OPTARG";;
@@ -486,6 +489,7 @@ do
 	    esac
 	done
 	;;
+	x) EXEC=0;;
 
     # instant output options
     o)	OUTFMT="$OPTARG";;
@@ -792,7 +796,7 @@ fi
 #	2		Run this query every week on the days checked
 #	3		Run this query once then delete it
 #
-if [ "$DEBUG" = 0 -a "$OUTFMT" = "" ]; then
+if [ "$DEBUG" = 0 -a "$OUTFMT" = "" -a "$EXEC" = 1 ]; then
     days=`TZ=US/Pacific date "+-dcbDays%%3A%w=on"`
     runonce="-d ${CTL}rbRunOption=1"
 
@@ -806,6 +810,7 @@ if [ "$DEBUG" = 0 -a "$OUTFMT" = "" ]; then
     days="$days -d${CTL}cbDays\$6=on"
     runonce="-d ${CTL}rbRunOption=3"
 else
+print "=============== NO EXEC"
     days=
     runonce=
 fi
