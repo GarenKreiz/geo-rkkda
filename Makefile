@@ -47,6 +47,7 @@ SHELLS=	geo-nearest geo-code geo-count geo-usernum geo-waypoint \
 	geo-project \
 	geo-additional \
 	geo-pictures \
+	geo-pockets \
 	rect2geomap \
 	geo-dist \
 	gpx2html \
@@ -209,6 +210,7 @@ FILES= \
 	geo-2gpsdrive.sh \
 	geo-2tangogps.sh \
 	geo-pictures.sh \
+	geo-pockets.sh \
 	rect2geomap \
 	gpx2html \
 	geo-html2gpx \
@@ -534,6 +536,7 @@ geo-code: geo-common Makefile
 geo-zipcode: geo-common Makefile
 geo-waypoint: geo-common geo-common-gpsdrive Makefile
 geo-pictures: geo-common geo-common-gc Makefile
+geo-pockets: geo-common geo-common-gc Makefile
 geo-dist: geo-common Makefile
 gpx-photos: geo-common Makefile
 nc-nearest: geo-common geo-common-nc geo-common-gpsdrive Makefile
