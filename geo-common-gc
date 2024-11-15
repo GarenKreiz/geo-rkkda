@@ -1314,6 +1314,9 @@ gc_query() {
 	if grep -s -q "By State" $HTMLPAGE; then
 	    error "searching gave up on $start"
 	fi
+	if grep -s -q "PrivateResultsContent" $HTMLPAGE; then
+	    error "private content decided by user"
+	fi
 	if grep -s -q ">Advanced Search<" $HTMLPAGE; then
 	    error "need a country AND a state!"
 	fi
