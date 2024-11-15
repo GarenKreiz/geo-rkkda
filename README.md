@@ -65,7 +65,8 @@ geo-gid -?
 	geo-gpxmail	Process PQ email using gpx2html
 	geo-gpxprocess	Process PQ download(s) using geo-pqdownload and gpx2html
 	geo-pqdownload	Perform a Pocket Query download(s)
-	geo-myfinds	Schedule a Pocket Query containing your finds.
+	geo-myfinds	Schedule a Pocket Query containing your finds
+	geo-pockets	Activate/desactivate/preview pocket queries
 	geo-rehides	From your found.gpx file, produce a GPX file of rehides
 	geo-correct-coords Correct the coords of cache(s)
 
