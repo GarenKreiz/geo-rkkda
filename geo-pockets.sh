@@ -77,12 +77,12 @@ read_rc_file
 #
 BYUSER="$USERNAME"
 
-DELETE=0
+PQSET=1
 
 while getopts "dq:t:x:u:p:D:h?-" opt
 do
     case $opt in
-    d)  DELETE=1;;
+    d)  PQSET=0;;
     q)  POCKETQUERY="$OPTARG";;
     t)  TOP="$OPTARG";;
 	x)  NUM="$OPTARG"
@@ -103,13 +103,6 @@ do
     esac
 done
 
-LOGUSERNAME="$BYUSER"
-byuser=`urlencode "$BYUSER" | tr ' ' '+' `
-SEARCH="?ul=$byuser"
-if [ "$BYUSER" = "$USERNAME" ]; then
-    VARTIME=ifound
-fi
-
 #
 #	Process pocket queries
 #
@@ -127,33 +120,20 @@ gc_queriesinit() {
     if [ $NOCOOKIES = 1 ]; then
 	CRUFT="$CRUFT $COOKIE_FILE"
     fi
-
     
     #	Login to gc.com
     #
     gc_login "$USERNAME" "$PASSWORD"
-
-    # 
-    #   Goto to page number
-    #
-
-    #
-    # Fetch the page of closest caches and scrape the cache ID's
-    #
     
+    #   Get list of PQs
+    #
     URL="$GEOS/pocket"
 
-    debug 1 "$start: curl $URL "
-
+    debug 1 "curl $URL "
     curl $CURL_OPTS -L -s -b $COOKIE_FILE -c $COOKIE_FILE -A "$UA" \
         "$URL" \
         | $sed -e "s/&#39;/'/g" -e "s/\r//" > $HTMLPAGE
 
-    if [ "$DEBUG" -ge 1 ]; then
-        grep "Total Records:.*Top.*" $HTMLPAGE |
-        sed -e "s/<.b>.*//" -e "s/^.*span>//" -e "s/<b>//" 1>&2
-    fi
-    
     rc=$?; if [ $rc != 0 ]; then
         error "curl: fetch $URL"
     fi
@@ -171,18 +151,12 @@ gc_queriesinit() {
     if grep -s -q ">Advanced Search<" $HTMLPAGE; then
         error "need a country AND a state!"
     fi
-
-    #
-    # Grab a few important values from the page
-    #
-    # 
-    # gc_getviewstate $HTMLPAGE
     
     #
-    # Grab the CIDs into two categories: found and notfound
+    # Grab the CIDs of PQs
     #
     PQFILE=${TMP}_pq.txt
-    CRUFT="$CRUFT $HTMLPAGE"
+    CRUFT="$CRUFT $PQFILE"
 
     grep gcquery $HTMLPAGE | sed 's/.*uid=\(.*\)" title="\(.*\)".*/\2|\1/' > $PQFILE
 }
@@ -190,12 +164,6 @@ gc_queriesinit() {
 gc_pqueries() {
 
     gc_queriesinit
-
-    if [ $DELETE = 0 ]; then
-	PQSET=1
-    else
-	PQSET=0
-    fi
 
     ((NUM=NUM-1))
 
@@ -209,13 +177,13 @@ gc_pqueries() {
         HTMLPAGE=${TMP}_$RANDOM.html
         CRUFT="$CRUFT $HTMLPAGE"
 
+        debug 1 "curl $URL"
 	    curl $CURL_OPTS -L -s -b $COOKIE_FILE -A "$UA" \
 		"$URL" \
 		| $sed -e "s/&#39;/'/g" -e "s/\r//" > $HTMLPAGE
 	    sleep $GEOSLEEP
 	done
     fi
-
 }
 
 gc_tqueries() {
@@ -272,4 +240,3 @@ if [ "$TOP" != "" ]; then
 elif [ "$POCKETQUERY" != "" ]; then
     gc_pqueries
 fi
-
